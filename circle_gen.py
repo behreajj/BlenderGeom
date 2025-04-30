@@ -3,6 +3,7 @@ import math
 from bpy.props import (
     EnumProperty,
     FloatProperty,
+    FloatVectorProperty,
     IntProperty)
 
 bl_info = {
@@ -49,13 +50,24 @@ class CircMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
+
+    origin: FloatVectorProperty(
+        name="Origin",
+        description="Circle origin",
+        default=(0.0, 0.0),
+        soft_min=-1.0,
+        soft_max=1.0,
+        step=1,
+        precision=3,
+        size=2,
+        subtype="TRANSLATION") # type: ignore
     
     res_u: IntProperty(
         name="Resolution",
         description="Corner resolution",
         min=1,
         soft_max=64,
-        default=12) # type: ignore
+        default=24) # type: ignore
 
     fill_mode: EnumProperty(
         items=[
@@ -67,29 +79,11 @@ class CircMaker(bpy.types.Operator):
         default="BOTH",
         description="Fill mode to use") # type: ignore
 
-    extrude_thick: FloatProperty(
-        name="Extrude",
-        description="Extrusion thickness",
-        min=0.0,
-        soft_max=1.0,
-        step=1,
-        precision=3,
-        default=0.0) # type: ignore
-
-    extrude_off: FloatProperty(
-        name="Offset",
-        description="Extrusion offset",
-        min=-1.0,
-        max=1.0,
-        step=1,
-        precision=3,
-        subtype="FACTOR",
-        default=0.0) # type: ignore
-
     def execute(self, context):
         knot_count = max(3, self.knot_count)
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
+        origin = self.origin
 
         to_theta = math.tau / knot_count
         handle_mag = math.tan(0.25 * to_theta) * radius * (4.0 / 3.0)
@@ -97,8 +91,6 @@ class CircMaker(bpy.types.Operator):
         crv_data = bpy.data.curves.new("Circle", "CURVE")
         crv_data.dimensions = "2D"
         crv_data.fill_mode = self.fill_mode
-        crv_data.extrude = self.extrude_thick
-        crv_data.offset = self.extrude_off
 
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
@@ -116,8 +108,8 @@ class CircMaker(bpy.types.Operator):
             sina = math.sin(angle)
             hm_cosa = handle_mag * cosa
             hm_sina = handle_mag * sina
-            co_x = radius * cosa
-            co_y = radius * sina
+            co_x = origin[0] + radius * cosa
+            co_y = origin[1] + radius * sina
 
             knot.handle_left_type = "FREE"
             knot.handle_right_type = "FREE"

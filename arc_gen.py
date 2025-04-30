@@ -3,6 +3,7 @@ import math
 from bpy.props import (
     EnumProperty,
     FloatProperty,
+    FloatVectorProperty,
     IntProperty)
 
 bl_info = {
@@ -61,12 +62,23 @@ class ArcMaker(bpy.types.Operator):
         default="STROKE",
         description="Arc type to create") # type: ignore
     
+    origin: FloatVectorProperty(
+        name="Origin",
+        description="Circle origin",
+        default=(0.0, 0.0),
+        soft_min=-1.0,
+        soft_max=1.0,
+        step=1,
+        precision=3,
+        size=2,
+        subtype="TRANSLATION") # type: ignore
+
     res_u: IntProperty(
         name="Resolution",
         description="Corner resolution",
         min=1,
         soft_max=64,
-        default=12) # type: ignore
+        default=24) # type: ignore
 
     fill_mode: EnumProperty(
         items=[
@@ -78,36 +90,16 @@ class ArcMaker(bpy.types.Operator):
         default="NONE",
         description="Fill mode to use") # type: ignore
 
-    extrude_thick: FloatProperty(
-        name="Extrude",
-        description="Extrusion thickness",
-        min=0.0,
-        soft_max=1.0,
-        step=1,
-        precision=3,
-        default=0.0) # type: ignore
-
-    extrude_off: FloatProperty(
-        name="Offset",
-        description="Extrusion offset",
-        min=-1.0,
-        max=1.0,
-        step=1,
-        precision=3,
-        subtype="FACTOR",
-        default=0.0) # type: ignore
-
     def execute(self, context):
         radius = max(0.000001, self.radius)
         start_angle = self.start_angle
         stop_angle = self.stop_angle
         arc_type = self.arc_type
+        origin = self.origin
 
         crv_data = bpy.data.curves.new("Arc", "CURVE")
         crv_data.dimensions = "2D"
         crv_data.fill_mode = self.fill_mode
-        crv_data.extrude = self.extrude_thick
-        crv_data.offset = self.extrude_off
 
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
@@ -128,8 +120,8 @@ class ArcMaker(bpy.types.Operator):
                 sina = math.sin(angle)
                 hm_cosa = handle_mag * cosa
                 hm_sina = handle_mag * sina
-                co_x = radius * cosa
-                co_y = radius * sina
+                co_x = origin[0] + radius * cosa
+                co_y = origin[1] + radius * sina
 
                 knot.handle_left_type = "FREE"
                 knot.handle_right_type = "FREE"
@@ -156,6 +148,9 @@ class ArcMaker(bpy.types.Operator):
             orig_line = bz_pts[0]
             dest_line = bz_pts[1]
 
+            x_center = origin[0]
+            y_center = origin[1]
+
             x_dest = radius * math.cos(angle0)
             y_dest = radius * math.sin(angle0)
             x_fh = x_dest / 3.0
@@ -165,15 +160,25 @@ class ArcMaker(bpy.types.Operator):
 
             orig_line.handle_left_type = "FREE"
             orig_line.handle_right_type = "FREE"
-            orig_line.co = (0.0, 0.0, 0.0)
-            orig_line.handle_left = (-x_fh, -y_fh, 0.0)
-            orig_line.handle_right = (x_fh, y_fh, 0.0)
+            orig_line.co = (x_center, y_center, 0.0)
+            orig_line.handle_left = (
+                x_center - x_fh,
+                y_center - y_fh, 0.0)
+            orig_line.handle_right = (
+                x_center + x_fh,
+                y_center + y_fh, 0.0)
 
             dest_line.handle_left_type = "FREE"
             dest_line.handle_right_type = "FREE"
-            dest_line.co = (x_dest, y_dest, 0.0)
-            dest_line.handle_left = (x_rh, y_rh, 0.0)
-            dest_line.handle_right = (x_dest + x_fh, y_dest + y_fh, 0.0)
+            dest_line.co = (
+                x_center + x_dest,
+                y_center + y_dest, 0.0)
+            dest_line.handle_left = (
+                x_center + x_rh,
+                y_center + y_rh, 0.0)
+            dest_line.handle_right = (
+                x_center + x_dest + x_fh,
+                y_center + y_dest + y_fh, 0.0)
 
             crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
             crv_obj.location = context.scene.cursor.location
@@ -203,8 +208,8 @@ class ArcMaker(bpy.types.Operator):
             sina = math.sin(angle)
             hm_cosa = handle_mag * cosa
             hm_sina = handle_mag * sina
-            co_x = radius * cosa
-            co_y = radius * sina
+            co_x = origin[0] + radius * cosa
+            co_y = origin[1] + radius * sina
 
             knot.handle_left_type = "FREE"
             knot.handle_right_type = "FREE"
@@ -230,14 +235,25 @@ class ArcMaker(bpy.types.Operator):
             stop_x = stop_knot.co[0]
             stop_y = stop_knot.co[1]
 
-            start_knot.handle_left = (u * start_x, u * start_y, 0.0)
-            stop_knot.handle_right = (u * stop_x, u * stop_y, 0.0)
+            x_center = origin[0]
+            y_center = origin[1]
+
+            start_knot.handle_left = (
+                u * start_x + t * x_center,
+                u * start_y + t * y_center, 0.0)
+            stop_knot.handle_right = (
+                u * stop_x + t * x_center,
+                u * stop_y + t * y_center, 0.0)
 
             center_knot.handle_left_type = "FREE"
             center_knot.handle_right_type = "FREE"
-            center_knot.co = (0.0, 0.0, 0.0)
-            center_knot.handle_left = (t * stop_x, t * stop_y, 0.0)
-            center_knot.handle_right = (t * start_x, t * start_y, 0.0)
+            center_knot.co = (x_center, y_center, 0.0)
+            center_knot.handle_left = (
+                u * x_center + t * stop_x,
+                u * y_center + t * stop_y, 0.0)
+            center_knot.handle_right = (
+                u * x_center + t * start_x,
+                u * y_center + t * start_y, 0.0)
         elif arc_type == "CHORD":
             start_knot = bz_pts[0]
             stop_knot = bz_pts[knot_count - 1]
@@ -251,10 +267,12 @@ class ArcMaker(bpy.types.Operator):
             stop_x = stop_knot.co[0]
             stop_y = stop_knot.co[1]
 
-            start_knot.handle_left = (t * start_x + u * stop_x,
-                                      t * start_y + u * stop_y, 0.0)
-            stop_knot.handle_right = (t * stop_x + u * start_x,
-                                      t * stop_y + u * start_y, 0.0)
+            start_knot.handle_left = (
+                t * start_x + u * stop_x,
+                t * start_y + u * stop_y, 0.0)
+            stop_knot.handle_right = (
+                t * stop_x + u * start_x,
+                t * stop_y + u * start_y, 0.0)
             
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
