@@ -3,7 +3,6 @@ import math
 from bpy.props import (
     EnumProperty,
     FloatProperty,
-    FloatVectorProperty,
     IntProperty)
 
 bl_info = {
@@ -53,6 +52,15 @@ class ArcMaker(bpy.types.Operator):
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
     
+    arc_type: EnumProperty(
+        items=[
+            ("STROKE", "Stroke", "Stroke", 1),
+            ("PIE", "Pie", "Pie", 2),
+            ("CHORD", "Chord", "Chord", 3)],
+        name="Arc Type",
+        default="STROKE",
+        description="Arc type to create") # type: ignore
+    
     res_u: IntProperty(
         name="Resolution",
         description="Corner resolution",
@@ -93,6 +101,7 @@ class ArcMaker(bpy.types.Operator):
         radius = max(0.000001, self.radius)
         start_angle = self.start_angle
         stop_angle = self.stop_angle
+        arc_type = self.arc_type
 
         crv_data = bpy.data.curves.new("Arc", "CURVE")
         crv_data.dimensions = "2D"
@@ -172,18 +181,15 @@ class ArcMaker(bpy.types.Operator):
 
             return {"FINISHED"}
         
-        # TODO: Handle different modes -- pie, chord, sector
-        # sector would require an inner radius, maybe just multiply
-        # outer radius by 1/3
-        closed_loop = False
-
         dest_angle = angle0 + arc_len
         knot_count = max(2, math.ceil(4 * (arc_len / math.tau)))
         to_step = 1.0 / (knot_count - 1.0)
         handle_mag = math.tan(0.25 * to_step * arc_len) * radius * (4.0 / 3.0)
 
-        # Spline already contains one Bezier point.
+        closed_loop = arc_type != "STROKE"
         spline.use_cyclic_u = closed_loop
+
+        # Spline already contains one Bezier point.
         bz_pts = spline.bezier_points
         bz_pts.add(knot_count - 1)
 
@@ -191,7 +197,6 @@ class ArcMaker(bpy.types.Operator):
         for knot in bz_pts:
             t = i * to_step
             u = 1.0 - t
-
             angle = u * angle0 + t * dest_angle
 
             cosa = math.cos(angle)
@@ -209,6 +214,48 @@ class ArcMaker(bpy.types.Operator):
 
             i = i + 1
 
+        if arc_type == "PIE":
+            bz_pts.add(1)
+
+            start_knot = bz_pts[0]
+            stop_knot = bz_pts[knot_count - 1]
+            center_knot = bz_pts[knot_count]
+
+            t = 1.0 / 3.0
+            u = 2.0 / 3.0
+
+            start_x = start_knot.co[0]
+            start_y = start_knot.co[1]
+
+            stop_x = stop_knot.co[0]
+            stop_y = stop_knot.co[1]
+
+            start_knot.handle_left = (u * start_x, u * start_y, 0.0)
+            stop_knot.handle_right = (u * stop_x, u * stop_y, 0.0)
+
+            center_knot.handle_left_type = "FREE"
+            center_knot.handle_right_type = "FREE"
+            center_knot.co = (0.0, 0.0, 0.0)
+            center_knot.handle_left = (t * stop_x, t * stop_y, 0.0)
+            center_knot.handle_right = (t * start_x, t * start_y, 0.0)
+        elif arc_type == "CHORD":
+            start_knot = bz_pts[0]
+            stop_knot = bz_pts[knot_count - 1]
+
+            t = 1.0 / 3.0
+            u = 2.0 / 3.0
+
+            start_x = start_knot.co[0]
+            start_y = start_knot.co[1]
+
+            stop_x = stop_knot.co[0]
+            stop_y = stop_knot.co[1]
+
+            start_knot.handle_left = (t * start_x + u * stop_x,
+                                      t * start_y + u * stop_y, 0.0)
+            stop_knot.handle_right = (t * stop_x + u * start_x,
+                                      t * stop_y + u * start_y, 0.0)
+            
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
         context.scene.collection.objects.link(crv_obj)
@@ -217,7 +264,7 @@ class ArcMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(ArcMaker.bl_idname, icon="CURVE_BEZCIRCLE")
+    self.layout.operator(ArcMaker.bl_idname, icon="SPHERECURVE")
 
 
 def register():

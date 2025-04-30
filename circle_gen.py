@@ -3,7 +3,6 @@ import math
 from bpy.props import (
     EnumProperty,
     FloatProperty,
-    FloatVectorProperty,
     IntProperty)
 
 bl_info = {
@@ -44,8 +43,8 @@ class CircMaker(bpy.types.Operator):
     offset_angle: FloatProperty(
         name="Angle",
         description="Knot offset angle",
-        soft_min=-math.pi,
-        soft_max=math.pi,
+        soft_min=0.0,
+        soft_max=math.tau,
         step=57.2958,
         default=0.0,
         subtype="ANGLE",
@@ -131,6 +130,7 @@ class CircMaker(bpy.types.Operator):
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
         context.scene.collection.objects.link(crv_obj)
+
         return {"FINISHED"}
 
 
