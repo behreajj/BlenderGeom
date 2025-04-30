@@ -11,13 +11,13 @@ bl_info = {
     "version": (0, 1),
     "blender": (4, 3, 2),
     "category": "Add Curve",
-    "description": "Creates a circle.",
-    "tracker_url": "https://github.com/behreajj/"
+    "description": "Creates a Bezier curve circle.",
+    "tracker_url": "https://github.com/behreajj/blendergeom"
 }
 
 
 class CircMaker(bpy.types.Operator):
-    """Creates a circle Bezier curve"""
+    """Creates a Bezier curve circle"""
 
     bl_idname = "curve.primitive_circ_add"
     bl_label = "Circle"

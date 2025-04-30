@@ -11,13 +11,13 @@ bl_info = {
     "version": (0, 1),
     "blender": (4, 3, 2),
     "category": "Add Curve",
-    "description": "Creates an arc.",
-    "tracker_url": "https://github.com/behreajj/"
+    "description": "Creates a Bezier curve arc.",
+    "tracker_url": "https://github.com/behreajj/blendergeom"
 }
 
 
 class ArcMaker(bpy.types.Operator):
-    """Creates an arc Bezier curve"""
+    """Creates a Bezier curve arc"""
 
     bl_idname = "curve.primitive_arc_add"
     bl_label = "Arc"
