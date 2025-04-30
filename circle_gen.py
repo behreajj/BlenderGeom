@@ -46,6 +46,7 @@ class CircMaker(bpy.types.Operator):
         description="Knot offset angle",
         soft_min=-math.pi,
         soft_max=math.pi,
+        step=57.2958,
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
@@ -92,8 +93,7 @@ class CircMaker(bpy.types.Operator):
         offset_angle = self.offset_angle
 
         to_theta = math.tau / knot_count
-        handle_tan = 0.25 * to_theta
-        handle_mag = math.tan(handle_tan) * radius * (4.0 / 3.0)
+        handle_mag = math.tan(0.25 * to_theta) * radius * (4.0 / 3.0)
 
         crv_data = bpy.data.curves.new("Circle", "CURVE")
         crv_data.dimensions = "2D"
