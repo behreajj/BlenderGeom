@@ -89,8 +89,8 @@ class CircMaker(bpy.types.Operator):
         handle_mag = math.tan(0.25 * to_theta) * radius * (4.0 / 3.0)
 
         crv_data = bpy.data.curves.new("Circle", "CURVE")
-        crv_data.dimensions = "2D"
-        crv_data.fill_mode = self.fill_mode
+        # If a curve is 2D, then transforms cannot be applied.
+        crv_data.dimensions = "3D"
 
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")

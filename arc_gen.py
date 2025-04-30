@@ -80,16 +80,6 @@ class ArcMaker(bpy.types.Operator):
         soft_max=64,
         default=24) # type: ignore
 
-    fill_mode: EnumProperty(
-        items=[
-            ("NONE", "None", "None", 1),
-            ("BACK", "Back", "Back", 2),
-            ("FRONT", "Front", "Front", 3),
-            ("BOTH", "Both", "Both", 4)],
-        name="Fill Mode",
-        default="NONE",
-        description="Fill mode to use") # type: ignore
-
     def execute(self, context):
         radius = max(0.000001, self.radius)
         start_angle = self.start_angle
@@ -98,8 +88,8 @@ class ArcMaker(bpy.types.Operator):
         origin = self.origin
 
         crv_data = bpy.data.curves.new("Arc", "CURVE")
-        crv_data.dimensions = "2D"
-        crv_data.fill_mode = self.fill_mode
+        # If a curve is 2D, then transforms cannot be applied.
+        crv_data.dimensions = "3D"
 
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
