@@ -89,6 +89,19 @@ class VesicaMaker(bpy.types.Operator):
         bz_pts = spline.bezier_points
         bz_pts.add(3)
 
+        # TODO: There is a thinner ratio that is found in the
+        # flower of life. Should that be supported?
+        # 
+        # right
+        # rh: (-0.3479807901568614, -0.08776833172493075, 0.0)
+        # co: (0.5, 0.0, 0.0)
+        # fh: (-0.3479807901568614, 0.08776833172493075, 0.0)
+        #
+        # top:
+        # rh: (0.1755366634498613, 0.13397459621556138, 0.0)
+        # co: (0.0, 0.13397459621556138, 0.0)
+        # fh: (-0.1755366634498613, 0.13397459621556138, 0.0)
+
         # Vesica circles need to be scaled by
         # 2 / sqrt(3) = 1.1547005383792517 to fit in [-0.5, 0.5].
         # Their y axis offsets need to be scaled as well
@@ -98,6 +111,18 @@ class VesicaMaker(bpy.types.Operator):
         right_rh = (0.7937326154943315, -0.35726558990816354, 0.0)
         right_co = (1.0, 0.0, 0.0)
         right_fh = (0.7937326154943315, 0.35726558990816354, 0.0)
+
+        top_rh = (0.4125347690113375, 0.5773502691896258, 0.0)
+        top_co = (0.0, 0.5773502691896258, 0.0)
+        top_fh = (-0.4125347690113375, 0.5773502691896258, 0.0)
+
+        lft_rh = (-0.7937326154943315, 0.35726558990816354, 0.0)
+        lft_co = (-1.0, 0.0, 0.0)
+        lft_fh = (-0.7937326154943315, -0.35726558990816354, 0.0)
+        
+        btm_rh = (-0.4125347690113375, -0.5773502691896258, 0.0)
+        btm_co = (0.0, -0.5773502691896258, 0.0)
+        btm_fh = (0.4125347690113375, -0.5773502691896258, 0.0)
 
         bz_pts[0].handle_left_type = "FREE"
         bz_pts[0].handle_right_type = "FREE"
@@ -117,10 +142,6 @@ class VesicaMaker(bpy.types.Operator):
                 cosa, sina),
                 origin)
 
-        top_rh = (0.4125347690113375, 0.5773502691896258, 0.0)
-        top_co = (0.0, 0.5773502691896258, 0.0)
-        top_fh = (-0.4125347690113375, 0.5773502691896258, 0.0)
-
         bz_pts[1].handle_left_type = "FREE"
         bz_pts[1].handle_right_type = "FREE"
         bz_pts[1].handle_left = VesicaMaker.translate(
@@ -139,10 +160,6 @@ class VesicaMaker(bpy.types.Operator):
                 cosa, sina),
                 origin)
 
-        lft_rh = (-0.7937326154943315, 0.35726558990816354, 0.0)
-        lft_co = (-1.0, 0.0, 0.0)
-        lft_fh = (-0.7937326154943315, -0.35726558990816354, 0.0)
-
         bz_pts[2].handle_left_type = "FREE"
         bz_pts[2].handle_right_type = "FREE"
         bz_pts[2].handle_left = VesicaMaker.translate(
@@ -160,10 +177,6 @@ class VesicaMaker(bpy.types.Operator):
                 VesicaMaker.scale(lft_fh, radius),
                 cosa, sina),
                 origin)
-
-        btm_rh = (-0.4125347690113375, -0.5773502691896258, 0.0)
-        btm_co = (0.0, -0.5773502691896258, 0.0)
-        btm_fh = (0.4125347690113375, -0.5773502691896258, 0.0)
 
         bz_pts[3].handle_left_type = "FREE"
         bz_pts[3].handle_right_type = "FREE"

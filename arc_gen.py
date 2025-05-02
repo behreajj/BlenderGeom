@@ -175,7 +175,10 @@ class ArcMaker(bpy.types.Operator):
             return {"FINISHED"}
         
         dest_angle = angle0 + arc_len
-        knot_count = max(2, math.ceil(4 * (arc_len / math.tau)))
+        fudge = 0
+        if arc_len % (math.pi * 0.5) > 0.00001:
+            fudge = fudge + 1
+        knot_count = max(2, math.ceil(fudge + 4 * arc_len / math.tau))
         to_step = 1.0 / (knot_count - 1.0)
         handle_mag = math.tan(0.25 * to_step * arc_len) * radius * (4.0 / 3.0)
 
