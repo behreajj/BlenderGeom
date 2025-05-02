@@ -1,7 +1,6 @@
 import bpy
 import math
 from bpy.props import (
-    EnumProperty,
     FloatProperty,
     FloatVectorProperty,
     IntProperty)
@@ -55,8 +54,6 @@ class CircMaker(bpy.types.Operator):
         name="Origin",
         description="Circle origin",
         default=(0.0, 0.0),
-        soft_min=-1.0,
-        soft_max=1.0,
         step=1,
         precision=3,
         size=2,
@@ -68,16 +65,6 @@ class CircMaker(bpy.types.Operator):
         min=1,
         soft_max=64,
         default=24) # type: ignore
-
-    fill_mode: EnumProperty(
-        items=[
-            ("NONE", "None", "None", 1),
-            ("BACK", "Back", "Back", 2),
-            ("FRONT", "Front", "Front", 3),
-            ("BOTH", "Both", "Both", 4)],
-        name="Fill Mode",
-        default="BOTH",
-        description="Fill mode to use") # type: ignore
 
     def execute(self, context):
         knot_count = max(3, self.knot_count)

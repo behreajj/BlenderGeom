@@ -66,8 +66,6 @@ class ArcMaker(bpy.types.Operator):
         name="Origin",
         description="Circle origin",
         default=(0.0, 0.0),
-        soft_min=-1.0,
-        soft_max=1.0,
         step=1,
         precision=3,
         size=2,
