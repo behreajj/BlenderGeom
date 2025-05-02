@@ -10,7 +10,7 @@ bl_info = {
     "name": "Create Arc Curve",
     "author": "Jeremy Behreandt",
     "version": (0, 1),
-    "blender": (4, 3, 2),
+    "blender": (4, 4, 3),
     "category": "Add Curve",
     "description": "Creates a Bezier curve arc.",
     "tracker_url": "https://github.com/behreajj/blendergeom"
@@ -26,7 +26,7 @@ class ArcMaker(bpy.types.Operator):
 
     radius: FloatProperty(
         name="Radius",
-        description="Circle radius",
+        description="Arc radius",
         min=0.0001,
         soft_max=100.0,
         step=1,
@@ -64,7 +64,7 @@ class ArcMaker(bpy.types.Operator):
     
     origin: FloatVectorProperty(
         name="Origin",
-        description="Circle origin",
+        description="Arc origin",
         default=(0.0, 0.0),
         step=1,
         precision=3,

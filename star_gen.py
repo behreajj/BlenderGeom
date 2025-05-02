@@ -10,7 +10,7 @@ bl_info = {
     "name": "Create Star Curve",
     "author": "Jeremy Behreandt",
     "version": (0, 1),
-    "blender": (4, 3, 2),
+    "blender": (4, 4, 3),
     "category": "Add Curve",
     "description": "Creates a Bezier curve star.",
     "tracker_url": "https://github.com/behreajj/blendergeom"
@@ -42,7 +42,7 @@ class StarMaker(bpy.types.Operator):
 
     radius: FloatProperty(
         name="Radius",
-        description="Circle radius",
+        description="Star radius",
         min=0.0001,
         soft_max=100.0,
         step=1,
@@ -71,7 +71,7 @@ class StarMaker(bpy.types.Operator):
 
     origin: FloatVectorProperty(
         name="Origin",
-        description="Circle origin",
+        description="Star origin",
         default=(0.0, 0.0),
         step=1,
         precision=3,

@@ -9,7 +9,7 @@ bl_info = {
     "name": "Create Circle Curve",
     "author": "Jeremy Behreandt",
     "version": (0, 1),
-    "blender": (4, 3, 2),
+    "blender": (4, 4, 3),
     "category": "Add Curve",
     "description": "Creates a Bezier curve circle.",
     "tracker_url": "https://github.com/behreajj/blendergeom"
