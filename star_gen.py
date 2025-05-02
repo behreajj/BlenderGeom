@@ -119,7 +119,7 @@ class StarMaker(bpy.types.Operator):
                 cos[j] = (x_center + radius * math.cos(angle),
                           y_center + radius * math.sin(angle), 0.0)
         else:
-            inset_radius = inset * radius * math.cos(to_theta)
+            inset_radius = (1.0 - inset) * radius * math.cos(to_theta)
             for j in range(0, seg, 1):
                 r = inset_radius
                 if j % pick_skip < v_pick:
