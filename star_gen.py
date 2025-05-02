@@ -128,7 +128,7 @@ class StarMaker(bpy.types.Operator):
                 cos[j] = (x_center + r * math.cos(angle),
                           y_center + r * math.sin(angle), 0.0)
 
-        crv_data = bpy.data.curves.new("Circle", "CURVE")
+        crv_data = bpy.data.curves.new("Star", "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
         crv_data.dimensions = "3D"
 
