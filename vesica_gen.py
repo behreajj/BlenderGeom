@@ -102,110 +102,65 @@ class VesicaMaker(bpy.types.Operator):
         # so offset by 0.25 becomes 0.2886751345948129 .
         # The circles are 6 hexagons with a 30deg rotation.
 
-        right_rh = (0.7937326154943315, -0.35726558990816354, 0.0)
-        right_co = (1.0, 0.0, 0.0)
-        right_fh = (0.7937326154943315, 0.35726558990816354, 0.0)
-
-        top_rh = (0.4125347690113375, 0.5773502691896258, 0.0)
-        top_co = (0.0, 0.5773502691896258, 0.0)
-        top_fh = (-0.4125347690113375, 0.5773502691896258, 0.0)
-
-        lft_rh = (-0.7937326154943315, 0.35726558990816354, 0.0)
-        lft_co = (-1.0, 0.0, 0.0)
-        lft_fh = (-0.7937326154943315, -0.35726558990816354, 0.0)
-        
-        btm_rh = (-0.4125347690113375, -0.5773502691896258, 0.0)
-        btm_co = (0.0, -0.5773502691896258, 0.0)
-        btm_fh = (0.4125347690113375, -0.5773502691896258, 0.0)
-
+        points = [(0.0, 0.0, 0.0)] * 12
         if use_seed_ratio:
-            right_rh = (0.6959615803137228, -0.1755366634498615, 0.0)
-            right_co = (1.0, 0.0, 0.0)
-            right_fh = (0.6959615803137228, 0.1755366634498615, 0.0)
+            points[0] = (0.6959615803137228, -0.1755366634498615, 0.0)
+            points[1] = (1.0, 0.0, 0.0)
+            points[2] = (0.6959615803137228, 0.1755366634498615, 0.0)
 
-            top_rh = (0.3510733268997226, 0.26794919243112276, 0.0)
-            top_co = (0.0, 0.26794919243112276, 0.0)
-            top_fh = (-0.3510733268997226, 0.26794919243112276, 0.0)
+            points[3] = (0.3510733268997226, 0.26794919243112276, 0.0)
+            points[4] = (0.0, 0.26794919243112276, 0.0)
+            points[5] = (-0.3510733268997226, 0.26794919243112276, 0.0)
 
-            lft_rh = (-0.6959615803137228, 0.1755366634498615, 0.0)
-            lft_co = (-1.0, 0.0, 0.0)
-            lft_fh = (-0.6959615803137228, -0.1755366634498615, 0.0)
+            points[6] = (-0.6959615803137228, 0.1755366634498615, 0.0)
+            points[7] = (-1.0, 0.0, 0.0)
+            points[8] = (-0.6959615803137228, -0.1755366634498615, 0.0)
 
-            btm_rh = (-0.3510733268997226, -0.26794919243112276, 0.0)
-            btm_co = (0.0, -0.26794919243112276, 0.0)
-            btm_fh = (0.3510733268997226, -0.26794919243112276, 0.0)
+            points[9] = (-0.3510733268997226, -0.26794919243112276, 0.0)
+            points[10] = (0.0, -0.26794919243112276, 0.0)
+            points[11] = (0.3510733268997226, -0.26794919243112276, 0.0)
+        else:
+            points[0] = (0.7937326154943315, -0.35726558990816354, 0.0)
+            points[1] = (1.0, 0.0, 0.0)
+            points[2] = (0.7937326154943315, 0.35726558990816354, 0.0)
 
-        bz_pts[0].handle_left_type = "FREE"
-        bz_pts[0].handle_right_type = "FREE"
-        bz_pts[0].handle_left = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(right_rh, radius),
-                cosa, sina),
-                origin)
-        bz_pts[0].co = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(right_co, radius),
-                cosa, sina),
-                origin)
-        bz_pts[0].handle_right = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(right_fh, radius),
-                cosa, sina),
-                origin)
+            points[3] = (0.4125347690113375, 0.5773502691896258, 0.0)
+            points[4] = (0.0, 0.5773502691896258, 0.0)
+            points[5] = (-0.4125347690113375, 0.5773502691896258, 0.0)
 
-        bz_pts[1].handle_left_type = "FREE"
-        bz_pts[1].handle_right_type = "FREE"
-        bz_pts[1].handle_left = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(top_rh, radius),
-                cosa, sina),
-                origin)
-        bz_pts[1].co = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(top_co, radius),
-                cosa, sina),
-                origin)
-        bz_pts[1].handle_right = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(top_fh, radius),
-                cosa, sina),
-                origin)
+            points[6] = (-0.7937326154943315, 0.35726558990816354, 0.0)
+            points[7] = (-1.0, 0.0, 0.0)
+            points[8] = (-0.7937326154943315, -0.35726558990816354, 0.0)
+            
+            points[9] = (-0.4125347690113375, -0.5773502691896258, 0.0)
+            points[10] = (0.0, -0.5773502691896258, 0.0)
+            points[11] = (0.4125347690113375, -0.5773502691896258, 0.0)
 
-        bz_pts[2].handle_left_type = "FREE"
-        bz_pts[2].handle_right_type = "FREE"
-        bz_pts[2].handle_left = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(lft_rh, radius),
+        i = 0
+        for knot in bz_pts:
+            rh = points[i]
+            co = points[i + 1]
+            fh = points[i + 2]
+
+            knot.handle_left_type = "FREE"
+            knot.handle_right_type = "FREE"
+            knot.handle_left = VesicaMaker.translate(
+                VesicaMaker.rotate_z(
+                VesicaMaker.scale(rh, radius),
                 cosa, sina),
                 origin)
-        bz_pts[2].co = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(lft_co, radius),
+            knot.co = VesicaMaker.translate(
+                VesicaMaker.rotate_z(
+                VesicaMaker.scale(co, radius),
                 cosa, sina),
                 origin)
-        bz_pts[2].handle_right = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(lft_fh, radius),
+            knot.handle_right = VesicaMaker.translate(
+                VesicaMaker.rotate_z(
+                VesicaMaker.scale(fh, radius),
                 cosa, sina),
                 origin)
 
-        bz_pts[3].handle_left_type = "FREE"
-        bz_pts[3].handle_right_type = "FREE"
-        bz_pts[3].handle_left = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(btm_rh, radius),
-                cosa, sina),
-                origin)
-        bz_pts[3].co = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(btm_co, radius),
-                cosa, sina),
-                origin)
-        bz_pts[3].handle_right = VesicaMaker.translate(
-            VesicaMaker.rotate_z(
-                VesicaMaker.scale(btm_fh, radius),
-                cosa, sina),
-                origin)
+            i = i + 3
 
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
