@@ -57,7 +57,8 @@ class ArcMaker(bpy.types.Operator):
         items=[
             ("STROKE", "Stroke", "Stroke", 1),
             ("PIE", "Pie", "Pie", 2),
-            ("CHORD", "Chord", "Chord", 3)],
+            ("CHORD", "Chord", "Chord", 3),
+            ("SECTOR", "Sector", "Sector", 4)],
         name="Arc Type",
         default="STROKE",
         description="Arc type to create") # type: ignore
@@ -264,6 +265,47 @@ class ArcMaker(bpy.types.Operator):
             stop_knot.handle_right = (
                 t * stop_x + u * start_x,
                 t * stop_y + u * start_y, 0.0)
+        elif arc_type == "SECTOR":
+            rad_inner = radius * 2.0 / 3.0
+            h_mag_inner = handle_mag * 2.0 / 3.0
+
+            bz_pts.add(knot_count)
+            j = 0
+            while j < knot_count:
+                knot = bz_pts[knot_count + j]
+
+                t = j * to_step
+                u = 1.0 - t
+                angle = u * dest_angle + t * angle0
+
+                cosa = math.cos(angle)
+                sina = math.sin(angle)
+                hm_cosa = h_mag_inner * cosa
+                hm_sina = h_mag_inner * sina
+                co_x = origin[0] + rad_inner * cosa
+                co_y = origin[1] + rad_inner * sina
+
+                knot.handle_left_type = "FREE"
+                knot.handle_right_type = "FREE"
+                knot.co = (co_x, co_y, 0.0)
+                knot.handle_left = (co_x - hm_sina, co_y + hm_cosa, 0.0)
+                knot.handle_right = (co_x + hm_sina, co_y - hm_cosa, 0.0)
+                
+                j = j + 1
+
+            t = 1.0 / 3.0
+            u = 2.0 / 3.0
+
+            last_outer = bz_pts[knot_count - 1]
+            first_inner = bz_pts[knot_count]
+            last_inner = bz_pts[knot_count * 2 - 1]
+            first_outer = bz_pts[0]
+
+            last_outer.handle_right = u * last_outer.co + t * first_inner.co
+            first_inner.handle_left = u * first_inner.co + t * last_outer.co
+
+            last_inner.handle_right = u * last_inner.co + t * first_outer.co
+            first_outer.handle_left = u * first_outer.co + t * last_inner.co
             
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
