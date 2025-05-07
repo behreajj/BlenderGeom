@@ -313,6 +313,9 @@ class ArcCurveMaker(bpy.types.Operator):
 
         return {"FINISHED"}
 
+    @classmethod
+    def poll(cls, context):
+        return context.area.type == "VIEW_3D"
 
 def menu_func(self, context):
     self.layout.operator(ArcCurveMaker.bl_idname, icon="SPHERECURVE")

@@ -58,14 +58,17 @@ class EggCurveMaker(bpy.types.Operator):
         soft_max=64,
         default=24) # type: ignore
     
+    @staticmethod
     def rotate_z(v, cosa, sina):
         return (cosa * v[0] - sina * v[1],
                 cosa * v[1] + sina * v[0],
                 0.0)
 
+    @staticmethod
     def scale(v, s):
         return (v[0] * s, v[1] * s, 0.0)
 
+    @staticmethod
     def translate(v, t):
         return (v[0] + t[0], v[1] + t[1], 0.0)
     
@@ -156,6 +159,10 @@ class EggCurveMaker(bpy.types.Operator):
         context.scene.collection.objects.link(crv_obj)
 
         return {"FINISHED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.area.type == "VIEW_3D"
 
 
 def menu_func(self, context):

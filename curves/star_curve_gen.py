@@ -167,6 +167,10 @@ class StarCurveMaker(bpy.types.Operator):
 
         return {"FINISHED"}
 
+    @classmethod
+    def poll(cls, context):
+        return context.area.type == "VIEW_3D"
+
 
 def menu_func(self, context):
     self.layout.operator(StarCurveMaker.bl_idname, icon="SOLO_OFF")
