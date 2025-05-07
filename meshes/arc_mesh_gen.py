@@ -247,7 +247,7 @@ class ArcMeshMaker(bpy.types.Operator):
 
                 vs[len_vs - j] = (x_orig + r_inner * point[0],
                           y_orig + r_inner * point[1], 0.0)
-                vts[len_vs - j - 1] = (0.5 * r_scalar * point[0] + 0.5, 
+                vts[len_vs - j] = (0.5 * r_scalar * point[0] + 0.5, 
                            0.5 * r_scalar * point[1] + 0.5)
                 
             # Construct quads.
