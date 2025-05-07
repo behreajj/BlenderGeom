@@ -65,8 +65,6 @@ class ArcMeshMaker(bpy.types.Operator):
     start_angle: FloatProperty(
         name="Start",
         description="Start angle",
-        soft_min=0.0,
-        soft_max=math.tau,
         step=57.2958,
         default=0.0,
         subtype="ANGLE",
@@ -75,8 +73,6 @@ class ArcMeshMaker(bpy.types.Operator):
     stop_angle: FloatProperty(
         name="Stop",
         description="Stop angle",
-        soft_min=0.0,
-        soft_max=math.tau,
         step=57.2958,
         default=math.pi * 0.5,
         subtype="ANGLE",
