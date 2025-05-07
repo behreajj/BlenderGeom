@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 import math
+from mathutils import Matrix
 from bpy.props import (
     EnumProperty,
     FloatProperty,
@@ -153,6 +154,7 @@ class ArcMeshMaker(bpy.types.Operator):
                 bm,
                 cap_ends = True,
                 cap_tris = True,
+                matrix = Matrix.Rotation(start_angle, 4, 'Z'),
                 radius = radius,
                 segments = sectors_per_circle,
                 calc_uvs = True)
