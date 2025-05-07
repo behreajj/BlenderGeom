@@ -26,6 +26,15 @@ class ArcMeshMaker(bpy.types.Operator):
     bl_label = "Arc"
     bl_options = {"REGISTER", "UNDO"}
 
+    arc_type: EnumProperty(
+        items=[
+            ("CHORD", "Chord", "Chord", 1),
+            ("PIE", "Pie", "Pie", 2),
+            ("SECTOR", "Sector", "Sector", 3)],
+        name="Arc Type",
+        default="PIE",
+        description="Arc type to create") # type: ignore
+
     sectors: IntProperty(
         name="Vertices",
         description="Number of knots",
@@ -72,17 +81,7 @@ class ArcMeshMaker(bpy.types.Operator):
         default=math.pi * 0.5,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
-    arc_type: EnumProperty(
-        items=[
-            ("STROKE", "Stroke", "Stroke", 1),
-            ("PIE", "Pie", "Pie", 2),
-            ("CHORD", "Chord", "Chord", 3),
-            ("SECTOR", "Sector", "Sector", 4)],
-        name="Arc Type",
-        default="PIE",
-        description="Arc type to create") # type: ignore
-    
+        
     origin: FloatVectorProperty(
         name="Origin",
         description="Arc origin",
@@ -148,7 +147,12 @@ class ArcMeshMaker(bpy.types.Operator):
         y_orig = origin[1]
         r_inner = radius * r_scalar
 
-        if abs(math.tau - (stop_angle - start_angle)) < 0.00139:
+        angle0 = start_angle % math.tau
+        angle1 = stop_angle % math.tau
+        arc_len = (angle1 - angle0) % math.tau
+
+        if arc_len < 0.00139 \
+            or abs(math.tau - (stop_angle - start_angle)) < 0.00139:
             bm = bmesh.new()
             bmesh.ops.create_circle(
                 bm,
@@ -167,13 +171,6 @@ class ArcMeshMaker(bpy.types.Operator):
             mesh_obj.location = context.scene.cursor.location
             context.scene.collection.objects.link(mesh_obj)
 
-            return {"FINISHED"}
-        
-        angle0 = start_angle % math.tau
-        angle1 = stop_angle % math.tau
-        arc_len = (angle1 - angle0) % math.tau
-
-        if arc_len < 0.00139:
             return {"FINISHED"}
         
         # Find points on arc without translation.

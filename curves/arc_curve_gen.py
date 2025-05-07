@@ -24,6 +24,16 @@ class ArcCurveMaker(bpy.types.Operator):
     bl_label = "Arc"
     bl_options = {"REGISTER", "UNDO"}
 
+    arc_type: EnumProperty(
+        items=[
+            ("CHORD", "Chord", "Chord", 1),
+            ("PIE", "Pie", "Pie", 2),
+            ("SECTOR", "Sector", "Sector", 3),
+            ("STROKE", "Stroke", "Stroke", 4)],
+        name="Arc Type",
+        default="STROKE",
+        description="Arc type to create") # type: ignore
+
     radius: FloatProperty(
         name="Radius",
         description="Arc radius",
@@ -62,17 +72,7 @@ class ArcCurveMaker(bpy.types.Operator):
         default=math.pi * 0.5,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
-    arc_type: EnumProperty(
-        items=[
-            ("STROKE", "Stroke", "Stroke", 1),
-            ("PIE", "Pie", "Pie", 2),
-            ("CHORD", "Chord", "Chord", 3),
-            ("SECTOR", "Sector", "Sector", 4)],
-        name="Arc Type",
-        default="STROKE",
-        description="Arc type to create") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Arc origin",
