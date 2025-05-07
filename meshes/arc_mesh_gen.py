@@ -135,8 +135,27 @@ class ArcMeshMaker(bpy.types.Operator):
         x_orig = origin[0]
         y_orig = origin[1]
 
+        r_scalar = 2.0 / 3.0
+        r_inner = radius * r_scalar
+
         if abs(math.tau - (stop_angle - start_angle)) < 0.00139:
-            # TODO: Draw a circle.
+            bm = bmesh.new()
+            bmesh.ops.create_circle(
+                bm,
+                cap_ends = True,
+                cap_tris = True,
+                radius = radius,
+                segments = sectors_per_circle,
+                calc_uvs = True)
+
+            mesh_data = bpy.data.meshes.new("Arc")
+            bm.to_mesh(mesh_data)
+            bm.free()
+
+            mesh_obj = bpy.data.objects.new(mesh_data.name, mesh_data)
+            mesh_obj.location = context.scene.cursor.location
+            context.scene.collection.objects.link(mesh_obj)
+
             return {"FINISHED"}
         
         angle0 = start_angle % math.tau
@@ -155,16 +174,14 @@ class ArcMeshMaker(bpy.types.Operator):
         
         to_step = 1.0 / (sectors_per_arc - 1.0)
         dest_angle = angle0 + arc_len
-        zero_orig_arc_points = [(0.0, 0.0)] * sectors_per_arc
+        arc_points = [(0.0, 0.0)] * sectors_per_arc
 
         i = 0
         while i < sectors_per_arc:
             t = i * to_step
             u = 1.0 - t
             angle = u * angle0 + t * dest_angle
-            cos_angle = math.cos(angle)
-            sin_angle = math.sin(angle)
-            zero_orig_arc_points[i] = (cos_angle, sin_angle)
+            arc_points[i] = (math.cos(angle), math.sin(angle))
             i = i + 1
 
         # Determine length of faces and vertices.
@@ -196,7 +213,7 @@ class ArcMeshMaker(bpy.types.Operator):
             
             j = 0
             while j < sectors_per_arc:
-                point = zero_orig_arc_points[j]
+                point = arc_points[j]
                 vs[j] = (x_orig + radius * point[0],
                          y_orig + radius * point[1], 0.0)
                 vts[j] = (point[0] * 0.5 + 0.5, 
@@ -217,7 +234,7 @@ class ArcMeshMaker(bpy.types.Operator):
 
             j = 0
             while j < sectors_per_arc:
-                point = zero_orig_arc_points[j]
+                point = arc_points[j]
                 vs[1 + j] = (x_orig + radius * point[0],
                              y_orig + radius * point[1], 0.0)
                 vts[1 + j] = (0.5 * point[0] + 0.5, 
@@ -232,12 +249,9 @@ class ArcMeshMaker(bpy.types.Operator):
 
         elif arc_type == "SECTOR":
 
-            r_scalar = 2.0 / 3.0
-            r_inner = radius * r_scalar
-
             j = 0
             while j < sectors_per_arc:
-                point = zero_orig_arc_points[j]
+                point = arc_points[j]
                 vs[j] = (x_orig + radius * point[0],
                          y_orig + radius * point[1], 0.0)
                 vts[j] = (0.5 * point[0] + 0.5, 
@@ -263,7 +277,7 @@ class ArcMeshMaker(bpy.types.Operator):
             # Default to a stroke.
             j = 0
             while j < sectors_per_arc:
-                point = zero_orig_arc_points[j]
+                point = arc_points[j]
                 vs[j] = (x_orig + radius * point[0],
                          y_orig + radius * point[1], 0.0)
                 j = j + 1
