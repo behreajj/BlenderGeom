@@ -36,12 +36,22 @@ class ArcMeshMaker(bpy.types.Operator):
     radius: FloatProperty(
         name="Radius",
         description="Arc radius",
-        min=0.0001,
+        min=0.0002,
         soft_max=100.0,
         step=1,
         precision=3,
         default=0.5) # type: ignore
 
+    r_scalar: FloatProperty(
+        name="Inset",
+        description="Inner radius scale (for sector type arcs only)",
+        default=2.0 / 3.0,
+        step=1,
+        precision=3,
+        min=0.0001,
+        max=0.9999,
+        subtype="FACTOR") # type: ignore
+    
     start_angle: FloatProperty(
         name="Start",
         description="Start angle",
@@ -127,15 +137,14 @@ class ArcMeshMaker(bpy.types.Operator):
     def execute(self, context):
         sectors_per_circle = max(3, self.sectors)
         radius = max(0.000001, self.radius)
+        r_scalar = min(1.0 - 0.000001, max(0.000001, self.r_scalar))
         start_angle = self.start_angle
         stop_angle = self.stop_angle
         arc_type = self.arc_type
         origin = self.origin
-        
+
         x_orig = origin[0]
         y_orig = origin[1]
-
-        r_scalar = 2.0 / 3.0
         r_inner = radius * r_scalar
 
         if abs(math.tau - (stop_angle - start_angle)) < 0.00139:

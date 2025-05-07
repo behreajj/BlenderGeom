@@ -27,11 +27,21 @@ class ArcCurveMaker(bpy.types.Operator):
     radius: FloatProperty(
         name="Radius",
         description="Arc radius",
-        min=0.0001,
+        min=0.0002,
         soft_max=100.0,
         step=1,
         precision=3,
         default=0.5) # type: ignore
+
+    r_scalar: FloatProperty(
+        name="Inset",
+        description="Inner radius scale (for sector type arcs only)",
+        default=2.0 / 3.0,
+        step=1,
+        precision=3,
+        min=0.0001,
+        max=0.9999,
+        subtype="FACTOR") # type: ignore
 
     start_angle: FloatProperty(
         name="Start",
@@ -81,6 +91,7 @@ class ArcCurveMaker(bpy.types.Operator):
 
     def execute(self, context):
         radius = max(0.000001, self.radius)
+        r_scalar = min(1.0 - 0.000001, max(0.000001, self.r_scalar))
         start_angle = self.start_angle
         stop_angle = self.stop_angle
         arc_type = self.arc_type
@@ -266,8 +277,8 @@ class ArcCurveMaker(bpy.types.Operator):
                 t * stop_x + u * start_x,
                 t * stop_y + u * start_y, 0.0)
         elif arc_type == "SECTOR":
-            rad_inner = radius * 2.0 / 3.0
-            h_mag_inner = handle_mag * 2.0 / 3.0
+            rad_inner = radius * r_scalar
+            h_mag_inner = handle_mag * r_scalar
 
             bz_pts.add(knot_count)
             j = 0
