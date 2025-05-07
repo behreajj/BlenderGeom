@@ -29,6 +29,17 @@ class VesicaCurveMaker(bpy.types.Operator):
         description="Use the seed of life aspect ratio",
         default=False) # type: ignore
 
+    piv: FloatVectorProperty(
+        name="Pivot",
+        description="Pivot applied prior to rotation and scale",
+        default=(0.0, 0.0),
+        min=-1.0,
+        max=1.0,
+        step=1,
+        precision=3,
+        size=2,
+        subtype="TRANSLATION") # type: ignore
+
     radius: FloatProperty(
         name="Radius",
         description="Vesica radius",
@@ -37,7 +48,7 @@ class VesicaCurveMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Knot offset angle",
@@ -80,6 +91,7 @@ class VesicaCurveMaker(bpy.types.Operator):
 
     def execute(self, context):
         use_seed_ratio = self.use_seed_ratio
+        pivot = self.piv
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
         origin = self.origin
@@ -106,10 +118,7 @@ class VesicaCurveMaker(bpy.types.Operator):
         # The circles are 6 hexagons with a 30deg rotation.
 
         points = [(0.0, 0.0, 0.0)] * 12
-        seed_offset = (0.0, 0.0)
         if use_seed_ratio:
-            seed_offset = (1.0, 0.0)
-
             points[0] = (0.6959615803137228, -0.1755366634498615, 0.0)
             points[1] = (1.0, 0.0, 0.0)
             points[2] = (0.6959615803137228, 0.1755366634498615, 0.0)
@@ -153,21 +162,21 @@ class VesicaCurveMaker(bpy.types.Operator):
             knot.handle_left = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
                 VesicaCurveMaker.scale(
-                VesicaCurveMaker.translate(rh, seed_offset),
+                VesicaCurveMaker.translate(rh, pivot),
                 radius),
                 cosa, sina),
                 origin)
             knot.co = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
                 VesicaCurveMaker.scale(
-                VesicaCurveMaker.translate(co, seed_offset),
+                VesicaCurveMaker.translate(co, pivot),
                 radius),
                 cosa, sina),
                 origin)
             knot.handle_right = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
                 VesicaCurveMaker.scale(
-                VesicaCurveMaker.translate(fh, seed_offset),
+                VesicaCurveMaker.translate(fh, pivot),
                 radius),
                 cosa, sina),
                 origin)
