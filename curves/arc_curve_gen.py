@@ -17,7 +17,7 @@ bl_info = {
 }
 
 
-class ArcMaker(bpy.types.Operator):
+class ArcCurveMaker(bpy.types.Operator):
     """Creates a Bezier curve arc"""
 
     bl_idname = "curve.primitive_arc_add"
@@ -315,14 +315,14 @@ class ArcMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(ArcMaker.bl_idname, icon="SPHERECURVE")
+    self.layout.operator(ArcCurveMaker.bl_idname, icon="SPHERECURVE")
 
 
 def register():
-    bpy.utils.register_class(ArcMaker)
+    bpy.utils.register_class(ArcCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.append(menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(ArcMaker)
+    bpy.utils.unregister_class(ArcCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.remove(menu_func)

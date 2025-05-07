@@ -16,7 +16,7 @@ bl_info = {
 }
 
 
-class EggMaker(bpy.types.Operator):
+class EggCurveMaker(bpy.types.Operator):
     """Creates a Bezier curve egg"""
 
     bl_idname = "curve.primitive_egg_add"
@@ -122,7 +122,7 @@ class EggMaker(bpy.types.Operator):
         ]
 
         y_displace = 0.22400923773979597
-        origin_displace = EggMaker.translate(
+        origin_displace = EggCurveMaker.translate(
             origin, (0.0, -y_displace * radius))
 
         i = 0
@@ -133,19 +133,19 @@ class EggMaker(bpy.types.Operator):
 
             knot.handle_left_type = "FREE"
             knot.handle_right_type = "FREE"
-            knot.handle_left = EggMaker.translate(
-                EggMaker.rotate_z(
-                EggMaker.scale(rh, radius),
+            knot.handle_left = EggCurveMaker.translate(
+                EggCurveMaker.rotate_z(
+                EggCurveMaker.scale(rh, radius),
                 cosa, sina),
                 origin_displace)
-            knot.co = EggMaker.translate(
-                EggMaker.rotate_z(
-                EggMaker.scale(co, radius),
+            knot.co = EggCurveMaker.translate(
+                EggCurveMaker.rotate_z(
+                EggCurveMaker.scale(co, radius),
                 cosa, sina),
                 origin_displace)
-            knot.handle_right = EggMaker.translate(
-                EggMaker.rotate_z(
-                EggMaker.scale(fh, radius),
+            knot.handle_right = EggCurveMaker.translate(
+                EggCurveMaker.rotate_z(
+                EggCurveMaker.scale(fh, radius),
                 cosa, sina),
                 origin_displace)
 
@@ -159,14 +159,14 @@ class EggMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(EggMaker.bl_idname, icon="CURVE_BEZCURVE")
+    self.layout.operator(EggCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
 
 
 def register():
-    bpy.utils.register_class(EggMaker)
+    bpy.utils.register_class(EggCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.append(menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(EggMaker)
+    bpy.utils.unregister_class(EggCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.remove(menu_func)

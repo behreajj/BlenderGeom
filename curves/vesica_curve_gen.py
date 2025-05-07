@@ -17,7 +17,7 @@ bl_info = {
 }
 
 
-class VesicaMaker(bpy.types.Operator):
+class VesicaCurveMaker(bpy.types.Operator):
     """Creates a Bezier curve vesica piscis"""
 
     bl_idname = "curve.primitive_vesica_add"
@@ -144,19 +144,19 @@ class VesicaMaker(bpy.types.Operator):
 
             knot.handle_left_type = "FREE"
             knot.handle_right_type = "FREE"
-            knot.handle_left = VesicaMaker.translate(
-                VesicaMaker.rotate_z(
-                VesicaMaker.scale(rh, radius),
+            knot.handle_left = VesicaCurveMaker.translate(
+                VesicaCurveMaker.rotate_z(
+                VesicaCurveMaker.scale(rh, radius),
                 cosa, sina),
                 origin)
-            knot.co = VesicaMaker.translate(
-                VesicaMaker.rotate_z(
-                VesicaMaker.scale(co, radius),
+            knot.co = VesicaCurveMaker.translate(
+                VesicaCurveMaker.rotate_z(
+                VesicaCurveMaker.scale(co, radius),
                 cosa, sina),
                 origin)
-            knot.handle_right = VesicaMaker.translate(
-                VesicaMaker.rotate_z(
-                VesicaMaker.scale(fh, radius),
+            knot.handle_right = VesicaCurveMaker.translate(
+                VesicaCurveMaker.rotate_z(
+                VesicaCurveMaker.scale(fh, radius),
                 cosa, sina),
                 origin)
 
@@ -170,14 +170,14 @@ class VesicaMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(VesicaMaker.bl_idname, icon="CURVE_BEZCURVE")
+    self.layout.operator(VesicaCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
 
 
 def register():
-    bpy.utils.register_class(VesicaMaker)
+    bpy.utils.register_class(VesicaCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.append(menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(VesicaMaker)
+    bpy.utils.unregister_class(VesicaCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.remove(menu_func)

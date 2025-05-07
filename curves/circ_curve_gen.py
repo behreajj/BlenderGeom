@@ -16,7 +16,7 @@ bl_info = {
 }
 
 
-class CircMaker(bpy.types.Operator):
+class CircCurveMaker(bpy.types.Operator):
     """Creates a Bezier curve circle"""
 
     bl_idname = "curve.primitive_circ_add"
@@ -114,14 +114,14 @@ class CircMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(CircMaker.bl_idname, icon="CURVE_BEZCIRCLE")
+    self.layout.operator(CircCurveMaker.bl_idname, icon="CURVE_BEZCIRCLE")
 
 
 def register():
-    bpy.utils.register_class(CircMaker)
+    bpy.utils.register_class(CircCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.append(menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(CircMaker)
+    bpy.utils.unregister_class(CircCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.remove(menu_func)

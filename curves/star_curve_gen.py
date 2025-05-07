@@ -17,7 +17,7 @@ bl_info = {
 }
 
 
-class StarMaker(bpy.types.Operator):
+class StarCurveMaker(bpy.types.Operator):
     """Creates a Bezier curve star"""
 
     bl_idname = "curve.primitive_star_add"
@@ -169,14 +169,14 @@ class StarMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(StarMaker.bl_idname, icon="SOLO_OFF")
+    self.layout.operator(StarCurveMaker.bl_idname, icon="SOLO_OFF")
 
 
 def register():
-    bpy.utils.register_class(StarMaker)
+    bpy.utils.register_class(StarCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.append(menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(StarMaker)
+    bpy.utils.unregister_class(StarCurveMaker)
     bpy.types.VIEW3D_MT_curve_add.remove(menu_func)
