@@ -272,7 +272,7 @@ class ArcMeshMaker(bpy.types.Operator):
             vs, vts, vns,
             fs, fs, fs)
 
-        mesh_data = bpy.data.meshes.new("Hex.Grid")
+        mesh_data = bpy.data.meshes.new("Arc")
         bm.to_mesh(mesh_data)
         bm.free()
 
