@@ -106,7 +106,10 @@ class VesicaCurveMaker(bpy.types.Operator):
         # The circles are 6 hexagons with a 30deg rotation.
 
         points = [(0.0, 0.0, 0.0)] * 12
+        seed_offset = (0.0, 0.0)
         if use_seed_ratio:
+            seed_offset = (1.0, 0.0)
+
             points[0] = (0.6959615803137228, -0.1755366634498615, 0.0)
             points[1] = (1.0, 0.0, 0.0)
             points[2] = (0.6959615803137228, 0.1755366634498615, 0.0)
@@ -149,17 +152,23 @@ class VesicaCurveMaker(bpy.types.Operator):
             knot.handle_right_type = "FREE"
             knot.handle_left = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
-                VesicaCurveMaker.scale(rh, radius),
+                VesicaCurveMaker.scale(
+                VesicaCurveMaker.translate(rh, seed_offset),
+                radius),
                 cosa, sina),
                 origin)
             knot.co = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
-                VesicaCurveMaker.scale(co, radius),
+                VesicaCurveMaker.scale(
+                VesicaCurveMaker.translate(co, seed_offset),
+                radius),
                 cosa, sina),
                 origin)
             knot.handle_right = VesicaCurveMaker.translate(
                 VesicaCurveMaker.rotate_z(
-                VesicaCurveMaker.scale(fh, radius),
+                VesicaCurveMaker.scale(
+                VesicaCurveMaker.translate(fh, seed_offset),
+                radius),
                 cosa, sina),
                 origin)
 
