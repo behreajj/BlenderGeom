@@ -37,7 +37,7 @@ class ArcMeshMaker(bpy.types.Operator):
 
     sectors: IntProperty(
         name="Vertices",
-        description="Number of knots",
+        description="Number of points on a whole circle",
         min=3,
         soft_max=500,
         default=32,
