@@ -6,7 +6,7 @@ from bpy.props import (
     IntProperty)
 
 bl_info = {
-    "name": "Create Egg",
+    "name": "Create Egg Curve",
     "author": "Jeremy Behreandt",
     "version": (0, 1),
     "blender": (4, 4, 3),
