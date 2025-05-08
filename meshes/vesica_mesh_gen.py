@@ -3,6 +3,7 @@ import bmesh
 import math
 from bpy.props import (
     BoolProperty,
+    EnumProperty,
     FloatProperty,
     FloatVectorProperty,
     IntProperty)
@@ -77,6 +78,15 @@ class VesicaMeshMaker(bpy.types.Operator):
         size=2,
         subtype="TRANSLATION") # type: ignore
     
+    face_type: EnumProperty(
+        items=[
+            ("NGON", "NGon", "Fill with an ngon", 1),
+            ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 2),
+            ("QUAD_STRIP", "Quad Strip", "Fill with quads except for the tips", 3)],
+        name="Face Type",
+        default="NGON",
+        description="How to fill the vesica") # type: ignore
+    
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -137,11 +147,11 @@ class VesicaMeshMaker(bpy.types.Operator):
     def execute(self, context):
         sectors_per_circle = max(3, self.sectors)
         use_seed_ratio = self.use_seed_ratio
-
         pivot = self.piv
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
         origin = self.origin
+        face_type = self.face_type
 
         cosa = math.cos(offset_angle)
         sina = math.sin(offset_angle)
@@ -184,11 +194,15 @@ class VesicaMeshMaker(bpy.types.Operator):
             # sectors_per_arc = max(3, math.ceil(sectors_per_circle / 6.0))
             sectors_per_arc = sectors_per_circle
 
+        has_central_vert = face_type == "TRI_FAN"
         len_vs = sectors_per_arc * 2 - 2
+        if has_central_vert:
+            len_vs = len_vs + 1
         vs = [(0.0, 0.0, 0.0)] * len_vs
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
+        # Right tip.
         vs[0] = VesicaMeshMaker.translate(
                 VesicaMeshMaker.rotate_z(
                 VesicaMeshMaker.scale(
@@ -199,6 +213,7 @@ class VesicaMeshMaker(bpy.types.Operator):
                 origin)
         vts[0] = (1.0, 0.5)
 
+        # Left tip.
         vs[sectors_per_arc - 1] = VesicaMeshMaker.translate(
                 VesicaMeshMaker.rotate_z(
                 VesicaMeshMaker.scale(
@@ -208,6 +223,17 @@ class VesicaMeshMaker(bpy.types.Operator):
                 cosa, sina),
                 origin)
         vts[sectors_per_arc - 1] = (0.0, 0.5)
+
+        if has_central_vert:
+            vs[len_vs - 1] = VesicaMeshMaker.translate(
+                VesicaMeshMaker.rotate_z(
+                VesicaMeshMaker.scale(
+                VesicaMeshMaker.translate(
+                (0.0, 0.0, 0.0), pivot),
+                radius),
+                cosa, sina),
+                origin)
+            vts[len_vs - 1] = (0.5, 0.5)
 
         i = 0
         while i < sectors_per_arc - 2:
@@ -226,7 +252,8 @@ class VesicaMeshMaker(bpy.types.Operator):
                 radius),
                 cosa, sina),
                 origin)
-            vts[1 + i] = (x_top * 0.5 + 0.5, y_top * 0.5 + 0.5)
+            vts[1 + i] = (x_top * 0.5 + 0.5,
+                          y_top * 0.5 + 0.5)
             
             angle_btm = u * start_angle_arc_btm + t * stop_angle_arc_btm
             x_btm = x_arc_btm_origin + r_scalar * math.cos(angle_btm)
@@ -240,18 +267,47 @@ class VesicaMeshMaker(bpy.types.Operator):
                 radius),
                 cosa, sina),
                 origin)
-            vts[sectors_per_arc + i] = (x_btm * 0.5 + 0.5, y_btm * 0.5 + 0.5)
+            vts[sectors_per_arc + i] = (x_btm * 0.5 + 0.5,
+                                        y_btm * 0.5 + 0.5)
             
             i = i + 1 
         
-        # TODO: Option to choose face types?
-        # NGON, TRI_FAN, QUADS
-        f = [0] * len_vs
-        j = 0
-        while j < len_vs:
-            f[j] = j
-            j = j + 1
-        fs =[tuple(f)]
+        fs = []
+        if face_type == "TRI_FAN":
+            len_fs = sectors_per_arc * 2 - 2
+            fs = [(0, 0, 0)] * len_fs
+            j = 0
+            while j < len_fs:
+                fs[j] = (
+                    len_vs - 1,
+                    j % (len_vs - 1),
+                    (j + 1) % (len_vs - 1))
+                j = j + 1
+        elif face_type == "QUAD_STRIP":
+            len_fs = sectors_per_arc - 1
+            fs = [(0, 0, 0, 0)] * len_fs
+            
+            # Right tri.
+            fs[0] = (0, 1, len_vs - 1)
+            
+            # Middle quads.
+            j = 1
+            while j < len_fs - 1:
+                fs[j] = (j, j + 1, len_vs - 1 - j, len_vs - j)
+                j = j + 1
+
+            # Left tri.
+            fs[len_fs - 1] = (
+                sectors_per_arc - 1,
+                sectors_per_arc,
+                sectors_per_arc - 2)
+        else:
+            f = [0] * len_vs
+            j = 0
+            while j < len_vs:
+                f[j] = j
+                j = j + 1
+            fs = [tuple(f)]
 
         bm = VesicaMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
