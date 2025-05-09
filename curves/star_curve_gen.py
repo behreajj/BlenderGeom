@@ -147,8 +147,10 @@ class StarCurveMaker(bpy.types.Operator):
             co_curr = cos[i]
             co_next = cos[(i + 1) % seg]
 
-            knot.handle_left_type = "FREE"
-            knot.handle_right_type = "FREE"
+            # Use vector type handles to minimize vertices
+            # created when converting to a mesh.
+            knot.handle_left_type = "VECTOR"
+            knot.handle_right_type = "VECTOR"
             knot.co = co_curr
             knot.handle_left = (
                 u * co_curr[0] + t * co_prev[0],

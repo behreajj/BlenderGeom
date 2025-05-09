@@ -237,6 +237,10 @@ class ArcCurveMaker(bpy.types.Operator):
             x_center = origin[0]
             y_center = origin[1]
 
+            # Use vector type handles to minimize vertices
+            # created when converting to a mesh.
+            start_knot.handle_left_type = "VECTOR"
+            stop_knot.handle_right_type = "VECTOR"
             start_knot.handle_left = (
                 u * start_x + t * x_center,
                 u * start_y + t * y_center, 0.0)
@@ -244,8 +248,8 @@ class ArcCurveMaker(bpy.types.Operator):
                 u * stop_x + t * x_center,
                 u * stop_y + t * y_center, 0.0)
 
-            center_knot.handle_left_type = "FREE"
-            center_knot.handle_right_type = "FREE"
+            center_knot.handle_left_type = "VECTOR"
+            center_knot.handle_right_type = "VECTOR"
             center_knot.co = (x_center, y_center, 0.0)
             center_knot.handle_left = (
                 u * x_center + t * stop_x,
@@ -266,6 +270,8 @@ class ArcCurveMaker(bpy.types.Operator):
             stop_x = stop_knot.co[0]
             stop_y = stop_knot.co[1]
 
+            start_knot.handle_left_type = "VECTOR"
+            stop_knot.handle_right_type = "VECTOR"
             start_knot.handle_left = (
                 t * start_x + u * stop_x,
                 t * start_y + u * stop_y, 0.0)
@@ -308,11 +314,15 @@ class ArcCurveMaker(bpy.types.Operator):
             last_inner = bz_pts[knot_count * 2 - 1]
             first_outer = bz_pts[0]
 
-            last_outer.handle_right = u * last_outer.co + t * first_inner.co
+            first_inner.handle_left_type = "VECTOR"
+            last_outer.handle_right_type = "VECTOR"
             first_inner.handle_left = u * first_inner.co + t * last_outer.co
+            last_outer.handle_right = u * last_outer.co + t * first_inner.co
 
-            last_inner.handle_right = u * last_inner.co + t * first_outer.co
+            first_outer.handle_left_type = "VECTOR"
+            last_inner.handle_right_type = "VECTOR"
             first_outer.handle_left = u * first_outer.co + t * last_inner.co
+            last_inner.handle_right = u * last_inner.co + t * first_outer.co
             
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
