@@ -93,6 +93,8 @@ class ArcCurveMaker(bpy.types.Operator):
         arc_type = self.arc_type
         origin = self.origin
 
+        rad_inner = radius * r_scalar
+
         crv_data = bpy.data.curves.new("Arc", "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
         crv_data.dimensions = "3D"
@@ -103,14 +105,14 @@ class ArcCurveMaker(bpy.types.Operator):
 
         if abs(math.tau - (stop_angle - start_angle)) < 0.00139:
             spline.use_cyclic_u = True
-            bz_pts = spline.bezier_points
-            bz_pts.add(3)
+            bz_pts_outer = spline.bezier_points
+            bz_pts_outer.add(3)
 
             to_theta = math.tau / 4.0
             handle_mag = math.tan(0.25 * to_theta) * radius * (4.0 / 3.0)
 
             i = 0
-            for knot in bz_pts:
+            for knot in bz_pts_outer:
                 angle = start_angle + i * to_theta
                 cosa = math.cos(angle)
                 sina = math.sin(angle)
@@ -126,6 +128,34 @@ class ArcCurveMaker(bpy.types.Operator):
                 knot.handle_right = (co_x - hm_sina, co_y + hm_cosa, 0.0)
 
                 i = i + 1
+
+            if arc_type == "SECTOR":
+                h_mag_inner = handle_mag * r_scalar
+
+                spline_inner = crv_splines.new("BEZIER")
+                spline_inner.resolution_u = self.res_u
+
+                spline_inner.use_cyclic_u = True
+                bz_pts_inner = spline_inner.bezier_points
+                bz_pts_inner.add(3)
+
+                j = 0
+                for knot_inner in bz_pts_inner:
+                    angle = start_angle + (3 - j) * to_theta
+                    cosa = math.cos(angle)
+                    sina = math.sin(angle)
+                    hm_cosa = h_mag_inner * cosa
+                    hm_sina = h_mag_inner * sina
+                    co_x = origin[0] + rad_inner * cosa
+                    co_y = origin[1] + rad_inner * sina
+
+                    knot_inner.handle_left_type = "FREE"
+                    knot_inner.handle_right_type = "FREE"
+                    knot_inner.co = (co_x, co_y, 0.0)
+                    knot_inner.handle_left = (co_x - hm_sina, co_y + hm_cosa, 0.0)
+                    knot_inner.handle_right = (co_x + hm_sina, co_y - hm_cosa, 0.0)
+                    
+                    j = j + 1
 
             crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
             crv_obj.location = context.scene.cursor.location
@@ -189,6 +219,7 @@ class ArcCurveMaker(bpy.types.Operator):
         knot_count = max(2, math.ceil(fudge + 4 * arc_len / math.tau))
         to_step = 1.0 / (knot_count - 1.0)
         handle_mag = math.tan(0.25 * to_step * arc_len) * radius * (4.0 / 3.0)
+        h_mag_inner = handle_mag * r_scalar
 
         closed_loop = arc_type != "STROKE"
         spline.use_cyclic_u = closed_loop
@@ -279,9 +310,6 @@ class ArcCurveMaker(bpy.types.Operator):
                 t * stop_x + u * start_x,
                 t * stop_y + u * start_y, 0.0)
         elif arc_type == "SECTOR":
-            rad_inner = radius * r_scalar
-            h_mag_inner = handle_mag * r_scalar
-
             bz_pts.add(knot_count)
             j = 0
             while j < knot_count:
