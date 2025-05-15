@@ -160,6 +160,7 @@ class EggMeshMaker(bpy.types.Operator):
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
+        # TODO: Clean up unneeded variables?
         i_start_angle = math.pi 
         i_to_theta = math.pi / (sectors_per_bottom - 1)
         i_radius = 1.0 / 1.2886751345948129
