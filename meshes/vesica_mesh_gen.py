@@ -288,7 +288,7 @@ class VesicaMeshMaker(bpy.types.Operator):
             fs = [(0, 0, 0, 0)] * len_fs
             
             # Right tri.
-            fs[0] = (0, 1, len_vs - 1)
+            fs[0] = (0, 1, len_vs - 1) # type: ignore
             
             # Middle quads.
             j = 1
@@ -297,7 +297,7 @@ class VesicaMeshMaker(bpy.types.Operator):
                 j = j + 1
 
             # Left tri.
-            fs[len_fs - 1] = (
+            fs[len_fs - 1] = ( # type: ignore
                 sectors_per_arc - 1,
                 sectors_per_arc,
                 sectors_per_arc - 2)

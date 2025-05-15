@@ -132,6 +132,7 @@ class EggMeshMaker(bpy.types.Operator):
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
         origin = self.origin
+        face_type = self.face_type
 
         half_pi = math.pi * 0.5
         qrtr_pi = math.pi * 0.25
@@ -148,11 +149,14 @@ class EggMeshMaker(bpy.types.Operator):
         # and should mirror each other.
         sectors_per_side = max(3, math.ceil(2.0 * sectors_per_circle * 0.125))
 
+        use_central_vert = face_type == "TRI_FAN"
         len_vs = (sectors_per_bottom - 1) \
             + (sectors_per_top - 1) \
             + (sectors_per_side - 1) * 2
+        if use_central_vert:
+            len_vs = len_vs + 1
 
-        vs = [(0.0, 0.0, 0.0)] * len_vs
+        vs = [(0.0, y_displace, 0.0)] * len_vs
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
@@ -231,11 +235,6 @@ class EggMeshMaker(bpy.types.Operator):
         cosa = math.cos(offset_angle)
         sina = math.sin(offset_angle)
 
-        # TODO: Support tri fan face type.
-        len_fs = 1
-        fs = [(0, 0, 0)] * len_fs
-        f = [0] * len_vs
-
         h = 0
         while h < len_vs:
             vs[h] = EggMeshMaker.translate(
@@ -243,9 +242,29 @@ class EggMeshMaker(bpy.types.Operator):
                 EggMeshMaker.scale(vs[h], radius),
                 cosa, sina),
                 origin_displace)
-            f[h] = h
             h = h + 1
-        fs[0] = tuple(f)
+
+        fs = []
+        len_fs = 0
+        if face_type == "NGON":
+            len_fs = 1
+            f = [0] * len_vs
+            g = 0
+            while g < len_vs:
+                f[g] = g
+                g = g + 1
+            fs = [tuple(f)]
+        elif face_type == "TRI_FAN":
+            len_fs = len_vs - 1
+            fs = [(0, 0, 0)] * len_fs
+            g = 0
+            while g < len_fs:
+                fs[g] = (
+                    len_vs - 1,
+                    g % (len_vs - 1),
+                    (g + 1) % (len_vs - 1))
+                g = g + 1
+            g = 0
 
         bm = EggMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
