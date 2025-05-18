@@ -1,8 +1,8 @@
-import bpy
-import bmesh
+import bpy # type: ignore
+import bmesh # type: ignore
 import math
-from mathutils import Matrix
-from bpy.props import (
+from mathutils import Matrix # type: ignore
+from bpy.props import ( # type: ignore
     EnumProperty,
     FloatProperty,
     FloatVectorProperty,

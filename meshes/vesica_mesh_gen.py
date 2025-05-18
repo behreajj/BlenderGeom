@@ -1,7 +1,7 @@
-import bpy
-import bmesh
+import bpy # type: ignore
+import bmesh # type: ignore
 import math
-from bpy.props import (
+from bpy.props import ( # type: ignore
     BoolProperty,
     EnumProperty,
     FloatProperty,

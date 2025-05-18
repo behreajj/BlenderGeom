@@ -1,8 +1,8 @@
-import bpy
-import bmesh
+import bpy # type: ignore
+import bmesh # type: ignore
 import math
-from mathutils import Matrix
-from bpy.props import (
+from mathutils import Matrix # type: ignore
+from bpy.props import ( # type: ignore
     EnumProperty,
     FloatProperty,
     FloatVectorProperty,
@@ -195,7 +195,7 @@ class ArcMeshMaker(bpy.types.Operator):
         if arc_type == "CHORD":
 
             len_fs = 1
-            fs = [tuple([0.0] * sectors_per_arc)]
+            fs = [tuple([0] * sectors_per_arc)]
         
         elif arc_type == "PIE":
         
@@ -226,7 +226,7 @@ class ArcMeshMaker(bpy.types.Operator):
 
             # Construct an n-gon face.
             k = 0
-            f = [0.0] * sectors_per_arc
+            f = [0] * sectors_per_arc
             while k < sectors_per_arc:
                 f[k] = k
                 k = k + 1
@@ -272,7 +272,8 @@ class ArcMeshMaker(bpy.types.Operator):
             k = 0
             while k < len_fs:
                 fs[k] = (
-                    k, k + 1,
+                    k,
+                    k + 1,
                     sectors_per_arc * 2 - k - 2,
                     sectors_per_arc * 2 - k - 1)
                 k = k + 1
