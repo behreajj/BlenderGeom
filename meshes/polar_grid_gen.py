@@ -26,7 +26,7 @@ class PolarGridMaker(bpy.types.Operator):
     rings: IntProperty(
         name="Rings",
         description="Number of rings in the grid",
-        min=3,
+        min=1,
         soft_max=64,
         default=16,
         step=1) # type: ignore
@@ -34,7 +34,7 @@ class PolarGridMaker(bpy.types.Operator):
     sectors: IntProperty(
         name="Sectors",
         description="Number of sectors in the grid",
-        min=1,
+        min=4,
         soft_max=128,
         default=32,
         step=1) # type: ignore
