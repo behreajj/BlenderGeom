@@ -307,7 +307,7 @@ class ArcMeshMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(ArcMeshMaker.bl_idname, icon="SPHERECURVE")
+    self.layout.operator(ArcMeshMaker.bl_idname, icon="MESH_DATA")
 
 
 def register():

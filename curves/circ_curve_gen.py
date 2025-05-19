@@ -118,7 +118,7 @@ class CircCurveMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(CircCurveMaker.bl_idname, icon="CURVE_BEZCIRCLE")
+    self.layout.operator(CircCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
 
 
 def register():

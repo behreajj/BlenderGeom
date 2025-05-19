@@ -175,7 +175,7 @@ class StarCurveMaker(bpy.types.Operator):
 
 
 def menu_func(self, context):
-    self.layout.operator(StarCurveMaker.bl_idname, icon="SOLO_OFF")
+    self.layout.operator(StarCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
 
 
 def register():

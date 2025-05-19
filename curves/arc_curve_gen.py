@@ -363,7 +363,7 @@ class ArcCurveMaker(bpy.types.Operator):
         return context.area.type == "VIEW_3D"
 
 def menu_func(self, context):
-    self.layout.operator(ArcCurveMaker.bl_idname, icon="SPHERECURVE")
+    self.layout.operator(ArcCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
 
 
 def register():
