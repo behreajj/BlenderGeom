@@ -31,7 +31,7 @@ class EggMeshMaker(bpy.types.Operator):
         description="Number of points on a whole egg",
         min=3,
         soft_max=500,
-        default=32,
+        default=64,
         step=1) # type: ignore
     
     radius: FloatProperty(
@@ -134,9 +134,11 @@ class EggMeshMaker(bpy.types.Operator):
         origin = self.origin
         face_type = self.face_type
 
-        half_pi = math.pi * 0.5
-        qrtr_pi = math.pi * 0.25
+        pi_75pc = math.pi * 0.75
+        pi_half = math.pi * 0.5
+        pi_qrtr = math.pi * 0.25
         sqrt_3 = math.sqrt(3)
+        # (1 / (2 * sqrt(3))) / 1.2886751345948129
         y_displace = 0.22400923773979597
 
         # 180deg / 360deg arclen = 0.5
@@ -160,51 +162,41 @@ class EggMeshMaker(bpy.types.Operator):
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
-        # TODO: Clean up unneeded variables?
-        i_start_angle = math.pi 
         i_to_theta = math.pi / (sectors_per_bottom - 1)
         i_radius = 1.0 / 1.2886751345948129
-        i_x_orig = 0.0
-        i_y_orig = 0.0
 
         i = 1
         while i < sectors_per_bottom:
-            theta = i_start_angle + i * i_to_theta
-            x = i_x_orig + i_radius * math.cos(theta)
-            y = i_y_orig + i_radius * math.sin(theta)
+            theta = math.pi + i * i_to_theta
+            x = i_radius * math.cos(theta)
+            y = i_radius * math.sin(theta)
             idx = i - 1
             vs[idx] = (x, y , 0.0)
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             i = i + 1
 
-        j_start_angle = 0.0
-        j_to_theta = qrtr_pi / (sectors_per_side - 1)
+        j_to_theta = pi_qrtr / (sectors_per_side - 1)
         j_radius = 2.0 / 1.2886751345948129
-        j_x_orig = 0.0 - i_radius
-        j_y_orig = 0.0
         
         j = 1
         while j < sectors_per_side:
-            theta = j_start_angle + j * j_to_theta
-            x = j_x_orig + j_radius * math.cos(theta)
-            y = j_y_orig + j_radius * math.sin(theta)
+            theta = j * j_to_theta
+            x = -i_radius + j_radius * math.cos(theta)
+            y = j_radius * math.sin(theta)
             idx = (sectors_per_bottom - 1) \
                 + j - 1
             vs[idx] = (x, y , 0.0)
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             j = j + 1
 
-        k_start_angle = qrtr_pi
-        k_to_theta = half_pi / (sectors_per_top - 1)
+        k_to_theta = pi_half / (sectors_per_top - 1)
         k_radius = (1.0 / sqrt_3) / 1.2886751345948129
-        k_x_orig = 0.0
-        k_y_orig = 0.0 + (1.0 / 1.2886751345948129)
 
         k = 1
         while k < sectors_per_top:
-            theta = k_start_angle + k * k_to_theta
-            x = k_x_orig + k_radius * math.cos(theta)
-            y = k_y_orig + k_radius * math.sin(theta)
+            theta = pi_qrtr + k * k_to_theta
+            x = k_radius * math.cos(theta)
+            y = i_radius + k_radius * math.sin(theta)
             idx = (sectors_per_bottom - 1) \
                 + (sectors_per_side - 1) \
                 + k - 1
@@ -212,17 +204,14 @@ class EggMeshMaker(bpy.types.Operator):
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             k = k + 1
 
-        m_start_angle = half_pi + qrtr_pi
-        m_to_theta = qrtr_pi / (sectors_per_side - 1)
+        m_to_theta = pi_qrtr / (sectors_per_side - 1)
         m_radius = 2.0 / 1.2886751345948129
-        m_x_orig = 0.0 + i_radius
-        m_y_orig = 0.0
 
         m = 1
         while m < sectors_per_side:
-            theta = m_start_angle + m * m_to_theta
-            x = m_x_orig + m_radius * math.cos(theta)
-            y = m_y_orig + m_radius * math.sin(theta)
+            theta = pi_75pc + m * m_to_theta
+            x = i_radius + m_radius * math.cos(theta)
+            y = m_radius * math.sin(theta)
             idx = (sectors_per_bottom - 1) \
                 + (sectors_per_side - 1) \
                 + (sectors_per_top - 1) \
