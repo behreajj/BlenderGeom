@@ -192,7 +192,7 @@ class VesicaMeshMaker(bpy.types.Operator):
 
             # 60deg arc length = 360 / 6
             # sectors_per_arc = max(3, math.ceil(sectors_per_circle / 6.0))
-            sectors_per_arc = sectors_per_circle
+            sectors_per_arc = sectors_per_circle + 2
 
         has_central_vert = face_type == "TRI_FAN"
         len_vs = sectors_per_arc * 2 - 2
