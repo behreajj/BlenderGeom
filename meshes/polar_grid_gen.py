@@ -138,9 +138,10 @@ class PolarGridMaker(bpy.types.Operator):
             sector = k % sectors
             ring = k // sectors
             
-            fac = ring * to_ring_fac
-            radius = (1.0 - fac) * min_radius + fac * max_radius
-            vt_radius = (1.0 - fac) * vt_min_radius + fac * vt_max_radius
+            t = ring * to_ring_fac
+            u = 1.0 - t
+            radius = u * min_radius + t * max_radius
+            vt_radius = u * vt_min_radius + t * vt_max_radius
             theta = offset_angle + sector * to_sector_theta
 
             cosa = math.cos(theta)
