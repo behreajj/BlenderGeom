@@ -173,12 +173,11 @@ class PolarGridMaker(bpy.types.Operator):
             sector = i % sectors
             ring = i // sectors
 
-            v00 =  ring * sectors + 1 + sector
-            v01 =  (ring + 1) * sectors + 1 + sector
-            v11 =  (ring + 1) * sectors + 1 + (sector + 1) % sectors
-            v10 =  ring * sectors + 1 + (sector + 1) % sectors
-
-            fs[num_tris + i] = (v00, v01, v11, v10)
+            fs[num_tris + i] = (
+                ring * sectors + 1 + sector,
+                (ring + 1) * sectors + 1 + sector,
+                (ring + 1) * sectors + 1 + (sector + 1) % sectors,
+                ring * sectors + 1 + (sector + 1) % sectors)
 
             i = i + 1
 
