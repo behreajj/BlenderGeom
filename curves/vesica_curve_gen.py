@@ -61,7 +61,7 @@ class VesicaCurveMaker(bpy.types.Operator):
     
     origin: FloatVectorProperty(
         name="Origin",
-        description="Circle origin",
+        description="Vesica origin",
         default=(0.0, 0.0),
         step=1,
         precision=3,
@@ -70,7 +70,7 @@ class VesicaCurveMaker(bpy.types.Operator):
     
     res_u: IntProperty(
         name="Resolution",
-        description="Corner resolution",
+        description="Resolution",
         min=1,
         soft_max=64,
         default=24) # type: ignore

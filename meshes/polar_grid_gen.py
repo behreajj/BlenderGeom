@@ -60,7 +60,7 @@ class PolarGridMaker(bpy.types.Operator):
     
     origin: FloatVectorProperty(
         name="Origin",
-        description="Circle origin",
+        description="Grid origin",
         default=(0.0, 0.0),
         step=1,
         precision=3,

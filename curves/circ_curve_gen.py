@@ -61,7 +61,7 @@ class CircCurveMaker(bpy.types.Operator):
     
     res_u: IntProperty(
         name="Resolution",
-        description="Corner resolution",
+        description="Resolution",
         min=1,
         soft_max=64,
         default=24) # type: ignore

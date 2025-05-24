@@ -45,7 +45,7 @@ class EggMeshMaker(bpy.types.Operator):
     
     offset_angle: FloatProperty(
         name="Angle",
-        description="Knot offset angle",
+        description="Offset angle",
         soft_min=0.0,
         soft_max=math.tau,
         step=57.2958,
@@ -55,7 +55,7 @@ class EggMeshMaker(bpy.types.Operator):
     
     origin: FloatVectorProperty(
         name="Origin",
-        description="Circle origin",
+        description="Egg origin",
         default=(0.0, 0.0),
         step=1,
         precision=3,
