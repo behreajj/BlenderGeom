@@ -78,7 +78,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
             ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 2)],
         name="Face Type",
         default="NGON",
-        description="How to fill the vesica") # type: ignore
+        description="How to fill the triangle") # type: ignore
 
     @staticmethod
     def mesh_data_to_bmesh(
