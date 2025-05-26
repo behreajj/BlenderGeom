@@ -18,6 +18,7 @@ This repository houses Python scripts to create basic 2D geometry in [Blender](h
   - An egg (2D).
   - A polar grid.
   - A Reuleaux triangle.
+  - A segmented line.
   - A star.
   - A vesica piscis.
 
