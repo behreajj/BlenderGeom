@@ -101,7 +101,8 @@ class StarCurveMaker(bpy.types.Operator):
         v_skip = skip[0]
         v_pick = skip[1]
 
-        not_valid = (v_skip < 1 and v_pick < 1) \
+        not_valid = v_skip < 1 \
+            or v_pick < 1 \
             or inset <= 0.0 \
             or inset >= 1.0
 

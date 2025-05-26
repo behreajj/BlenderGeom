@@ -18,6 +18,7 @@ This repository houses Python scripts to create basic 2D geometry in [Blender](h
   - An egg (2D).
   - A polar grid.
   - A Reuleaux triangle.
+  - A star.
   - A vesica piscis.
 
 To install, go to Edit > Preferences. Click on Add-ons in the lefthand column. Click on the arrow in the top-right corner. Select Install from Disk in the drop down menu.
