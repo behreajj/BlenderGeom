@@ -1,7 +1,6 @@
 import bpy # type: ignore
 import bmesh # type: ignore
 import math
-from mathutils import Matrix # type: ignore
 from bpy.props import ( # type: ignore
     EnumProperty,
     FloatProperty,
