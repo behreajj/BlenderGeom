@@ -2,6 +2,7 @@ import bpy # type: ignore
 import bmesh # type: ignore
 import math
 from bpy.props import ( # type: ignore
+    EnumProperty,
     FloatProperty,
     FloatVectorProperty,
     IntProperty,
@@ -78,6 +79,14 @@ class StarMeshMaker(bpy.types.Operator):
         size=2,
         subtype="TRANSLATION") # type: ignore
 
+    face_type: EnumProperty(
+        items=[
+            ("NGON", "NGon", "Fill with an ngon", 1),
+            ("STROKE", "Stroke", "Connect vertices with edges only", 2)],
+        name="Face Type",
+        default="NGON",
+        description="How to fill the star") # type: ignore
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -96,6 +105,12 @@ class StarMeshMaker(bpy.types.Operator):
         len_v_indices = len(v_indices)
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
+
+        if len_v_indices <= 0:
+            for h in range(0, len_vs):
+                bm.edges.new([
+                    bm_verts[h],
+                    bm_verts[(h + 1) % len_vs]])
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
@@ -128,6 +143,7 @@ class StarMeshMaker(bpy.types.Operator):
         inset = self.inset
         offset_angle = self.offset_angle
         origin = self.origin
+        face_type = self.face_type
 
         x_center = origin[0]
         y_center = origin[1]
@@ -187,12 +203,14 @@ class StarMeshMaker(bpy.types.Operator):
                     0.5 + vt_radius * cos_a,
                     0.5 + vt_radius * sin_a)
 
-        f = [0] * len_vs
-        k = 0
-        while k < len_vs:
-            f[k] = k
-            k = k + 1
-        fs = [tuple(f)]
+        fs = []
+        if face_type == "NGON":
+            f = [0] * len_vs
+            k = 0
+            while k < len_vs:
+                f[k] = k
+                k = k + 1
+            fs = [tuple(f)]
 
         bm = StarMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
