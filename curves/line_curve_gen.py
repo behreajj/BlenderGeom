@@ -1,5 +1,4 @@
 import bpy # type: ignore
-import math
 from bpy.props import ( # type: ignore
     EnumProperty,
     FloatVectorProperty,
@@ -116,6 +115,7 @@ class LineCurveMaker(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return context.area.type == "VIEW_3D"
+
 
 def menu_func(self, context):
     self.layout.operator(LineCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
