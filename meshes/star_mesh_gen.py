@@ -212,7 +212,7 @@ class StarMeshMaker(bpy.types.Operator):
             vs, vts, vns,
             fs, fs, fs)
 
-        mesh_data = bpy.data.meshes.new("Arc")
+        mesh_data = bpy.data.meshes.new("Star")
         bm.to_mesh(mesh_data)
         bm.free()
 
