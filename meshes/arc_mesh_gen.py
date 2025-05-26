@@ -30,7 +30,8 @@ class ArcMeshMaker(bpy.types.Operator):
         items=[
             ("CHORD", "Chord", "Chord", 1),
             ("PIE", "Pie", "Pie", 2),
-            ("SECTOR", "Sector", "Sector", 3)],
+            ("SECTOR", "Sector", "Sector", 3),
+            ("STROKE", "Stroke", "Stroke", 4)],
         name="Arc Type",
         default="PIE",
         description="Arc type to create") # type: ignore
@@ -105,6 +106,10 @@ class ArcMeshMaker(bpy.types.Operator):
         len_v_indices = len(v_indices)
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
+
+        if len_v_indices <= 0:
+            for h in range(0, len_vs - 1):
+                bm.edges.new([bm_verts[h], bm_verts[h + 1]])
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
@@ -230,7 +235,7 @@ class ArcMeshMaker(bpy.types.Operator):
             while k < sectors_per_arc:
                 f[k] = k
                 k = k + 1
-            fs[0] = tuple(f)
+            fs[0] = tuple(f) # type: ignore
 
         elif arc_type == "PIE":
 
@@ -248,7 +253,7 @@ class ArcMeshMaker(bpy.types.Operator):
             # Construct a triangle fan.
             k = 0
             while k < len_fs:
-                fs[k] = (0, k + 1, k + 2)
+                fs[k] = (0, k + 1, k + 2) # type: ignore
                 k = k + 1
 
         elif arc_type == "SECTOR":
@@ -267,16 +272,17 @@ class ArcMeshMaker(bpy.types.Operator):
                           y_orig + r_inner * point[1], 0.0)
                 vts[len_vs - j] = (0.5 * r_scalar * point[0] + 0.5, 
                            0.5 * r_scalar * point[1] + 0.5)
-                
+
             # Construct quads.
             k = 0
             while k < len_fs:
-                fs[k] = (
+                fs[k] = ( # type: ignore
                     k,
                     k + 1,
                     sectors_per_arc * 2 - k - 2,
                     sectors_per_arc * 2 - k - 1)
                 k = k + 1
+
         else:
 
             # Default to a stroke.

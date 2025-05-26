@@ -31,7 +31,7 @@ class ArcCurveMaker(bpy.types.Operator):
             ("SECTOR", "Sector", "Sector", 3),
             ("STROKE", "Stroke", "Stroke", 4)],
         name="Arc Type",
-        default="STROKE",
+        default="PIE",
         description="Arc type to create") # type: ignore
 
     radius: FloatProperty(
@@ -162,7 +162,7 @@ class ArcCurveMaker(bpy.types.Operator):
             context.scene.collection.objects.link(crv_obj)
 
             return {"FINISHED"}
-        
+
         angle0 = start_angle % math.tau
         angle1 = stop_angle % math.tau
         arc_len = (angle1 - angle0) % math.tau
@@ -211,7 +211,7 @@ class ArcCurveMaker(bpy.types.Operator):
             context.scene.collection.objects.link(crv_obj)
 
             return {"FINISHED"}
-        
+
         dest_angle = angle0 + arc_len
         fudge = 0
         if arc_len % (math.pi * 0.5) > 0.00001:
@@ -331,7 +331,7 @@ class ArcCurveMaker(bpy.types.Operator):
                 knot.co = (co_x, co_y, 0.0)
                 knot.handle_left = (co_x - hm_sina, co_y + hm_cosa, 0.0)
                 knot.handle_right = (co_x + hm_sina, co_y - hm_cosa, 0.0)
-                
+
                 j = j + 1
 
             t = 1.0 / 3.0
@@ -351,7 +351,7 @@ class ArcCurveMaker(bpy.types.Operator):
             last_inner.handle_right_type = "VECTOR"
             first_outer.handle_left = u * first_outer.co + t * last_inner.co
             last_inner.handle_right = u * last_inner.co + t * first_outer.co
-            
+
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
         context.scene.collection.objects.link(crv_obj)
