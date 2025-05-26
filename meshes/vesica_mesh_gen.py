@@ -30,7 +30,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         name="Seed of Life",
         description="Use the seed of life aspect ratio",
         default=False) # type: ignore
-    
+
     sectors: IntProperty(
         name="Vertices",
         description="Number of points on vesica",
@@ -49,7 +49,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     radius: FloatProperty(
         name="Radius",
         description="Vesica radius",
@@ -58,7 +58,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Offset angle",
@@ -68,7 +68,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Vesica origin",
@@ -77,7 +77,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     face_type: EnumProperty(
         items=[
             ("NGON", "NGon", "Fill with an ngon", 1),
@@ -86,7 +86,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         name="Face Type",
         default="NGON",
         description="How to fill the vesica") # type: ignore
-    
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -105,6 +105,9 @@ class VesicaMeshMaker(bpy.types.Operator):
         len_v_indices = len(v_indices)
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
+
+        # TODO: Support stroke with no faces? See arc mesh.
+        # Needs to be closed form, so use modulo operator.
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
@@ -243,7 +246,7 @@ class VesicaMeshMaker(bpy.types.Operator):
             angle_top = u * start_angle_arc_top + t * stop_angle_arc_top
             x_top = x_arc_top_origin + r_scalar * math.cos(angle_top)
             y_top = y_arc_top_origin + r_scalar * math.sin(angle_top)
-            
+
             vs[1 + i] = VesicaMeshMaker.translate(
                 VesicaMeshMaker.rotate_z(
                 VesicaMeshMaker.scale(
@@ -254,7 +257,7 @@ class VesicaMeshMaker(bpy.types.Operator):
                 origin)
             vts[1 + i] = (x_top * 0.5 + 0.5,
                           y_top * 0.5 + 0.5)
-            
+
             angle_btm = u * start_angle_arc_btm + t * stop_angle_arc_btm
             x_btm = x_arc_btm_origin + r_scalar * math.cos(angle_btm)
             y_btm = y_arc_btm_origin + r_scalar * math.sin(angle_btm)
@@ -269,9 +272,9 @@ class VesicaMeshMaker(bpy.types.Operator):
                 origin)
             vts[sectors_per_arc + i] = (x_btm * 0.5 + 0.5,
                                         y_btm * 0.5 + 0.5)
-            
+
             i = i + 1 
-        
+
         fs = []
         if face_type == "TRI_FAN":
             len_fs = sectors_per_arc * 2 - 2
@@ -286,10 +289,10 @@ class VesicaMeshMaker(bpy.types.Operator):
         elif face_type == "QUAD_STRIP":
             len_fs = sectors_per_arc - 1
             fs = [(0, 0, 0, 0)] * len_fs
-            
+
             # Right tri.
             fs[0] = (0, 1, len_vs - 1) # type: ignore
-            
+
             # Middle quads.
             j = 1
             while j < len_fs - 1:

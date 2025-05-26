@@ -107,6 +107,7 @@ class ArcMeshMaker(bpy.types.Operator):
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
 
+        # This assumes an open stroke form for the arc, not closed.
         if len_v_indices <= 0:
             for h in range(0, len_vs - 1):
                 bm.edges.new([bm_verts[h], bm_verts[h + 1]])
