@@ -65,7 +65,8 @@ class EggMeshMaker(bpy.types.Operator):
     face_type: EnumProperty(
         items=[
             ("NGON", "NGon", "Fill with an ngon", 1),
-            ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 2)],
+            ("STROKE", "Stroke", "Connect vertices with edges only", 2),
+            ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 3)],
         name="Face Type",
         default="NGON",
         description="How to fill the egg") # type: ignore
@@ -88,6 +89,12 @@ class EggMeshMaker(bpy.types.Operator):
         len_v_indices = len(v_indices)
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
+
+        if len_v_indices <= 0:
+            for h in range(0, len_vs):
+                bm.edges.new([
+                    bm_verts[h],
+                    bm_verts[(h + 1) % len_vs]])
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
