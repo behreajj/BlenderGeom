@@ -30,7 +30,7 @@ class LineCurveMaker(bpy.types.Operator):
         precision=3,
         size=3,
         subtype="TRANSLATION") # type: ignore
-    
+
     dest: FloatVectorProperty(
         name="Destination",
         description="Line destination",
@@ -39,14 +39,14 @@ class LineCurveMaker(bpy.types.Operator):
         precision=3,
         size=3,
         subtype="TRANSLATION") # type: ignore
-    
+
     subdiv: IntProperty(
         name="Subdivisions",
         description="Subdivisions",
         min=1,
         soft_max=64,
         default=1) # type: ignore
-    
+
     handle_type: EnumProperty(
         items=[
             ("ALIGNED", "Aligned", "Aligned", 1),
@@ -71,7 +71,7 @@ class LineCurveMaker(bpy.types.Operator):
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
         spline.use_cyclic_u = False
-    
+
         bz_pts = spline.bezier_points
         bz_pts.add(subdiv)
 
@@ -83,21 +83,21 @@ class LineCurveMaker(bpy.types.Operator):
             co = (u * orig[0] + t * dest[0],
                   u * orig[1] + t * dest[1],
                   u * orig[2] + t * dest[2])
-            
+
             t_fh = t + handle_factor
             u_fh = 1.0 - t_fh
 
             fh = (u_fh * orig[0] + t_fh * dest[0],
                   u_fh * orig[1] + t_fh * dest[1],
                   u_fh * orig[2] + t_fh * dest[2])
-            
+
             t_rh = t - handle_factor
             u_rh = 1.0 - t_rh
 
             rh = (u_rh * orig[0] + t_rh * dest[0],
                   u_rh * orig[1] + t_rh * dest[1],
                   u_rh * orig[2] + t_rh * dest[2])
-            
+
             knot.handle_left_type = handle_type
             knot.handle_right_type = handle_type
             knot.co = co

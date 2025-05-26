@@ -58,7 +58,7 @@ class CircCurveMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     res_u: IntProperty(
         name="Resolution",
         description="Resolution",
@@ -83,7 +83,7 @@ class CircCurveMaker(bpy.types.Operator):
         spline = crv_splines.new("BEZIER")
         spline.use_cyclic_u = True
         spline.resolution_u = self.res_u
-        
+
         # Spline already contains one Bezier point.
         bz_pts = spline.bezier_points
         bz_pts.add(knot_count - 1)

@@ -42,7 +42,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     radius: FloatProperty(
         name="Radius",
         description="Vesica radius",
@@ -148,7 +148,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
     @staticmethod
     def translate3(v, t):
         return (v[0] + t[0], v[1] + t[1], v[2] + t[2])
-    
+
     def execute(self, context):
         sectors_per_arc = max(3, self.sectors)
         pivot = (self.piv[0], self.piv[1], 0.0)
@@ -200,7 +200,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
             radius),
             cosa, sina),
             origin)
-            
+
             vt = ReuleauxMeshMaker.translate2(
             ReuleauxMeshMaker.scale2(
             ReuleauxMeshMaker.translate2(
@@ -228,7 +228,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
             radius),
             cosa, sina),
             origin)
-            
+
             vt = ReuleauxMeshMaker.translate2(
             ReuleauxMeshMaker.scale2(
             ReuleauxMeshMaker.translate2(
@@ -250,7 +250,7 @@ class ReuleauxMeshMaker(bpy.types.Operator):
                     corner[0] + 2 * math.cos(angle),
                     corner[1] + 2 * math.sin(angle),
                     0.0)
-                
+
                 v = ReuleauxMeshMaker.translate3(
                 ReuleauxMeshMaker.rotate_z3(
                 ReuleauxMeshMaker.scale3(

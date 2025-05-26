@@ -33,7 +33,7 @@ class EggMeshMaker(bpy.types.Operator):
         soft_max=500,
         default=64,
         step=1) # type: ignore
-    
+
     radius: FloatProperty(
         name="Radius",
         description="Radius",
@@ -42,7 +42,7 @@ class EggMeshMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Offset angle",
@@ -52,7 +52,7 @@ class EggMeshMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Egg origin",
@@ -61,7 +61,7 @@ class EggMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     face_type: EnumProperty(
         items=[
             ("NGON", "NGon", "Fill with an ngon", 1),
@@ -177,7 +177,7 @@ class EggMeshMaker(bpy.types.Operator):
 
         j_to_theta = pi_qrtr / (sectors_per_side - 1)
         j_radius = 2.0 / 1.2886751345948129
-        
+
         j = 1
         while j < sectors_per_side:
             theta = j * j_to_theta

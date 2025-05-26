@@ -31,7 +31,7 @@ class StarCurveMaker(bpy.types.Operator):
         soft_max=32,
         default=5,
         step=1) # type: ignore
-    
+
     skip: IntVectorProperty(
         name="Skip",
         description="Knots to skip",
@@ -48,7 +48,7 @@ class StarCurveMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     inset: FloatProperty(
         name="Inset",
         description="Radius factor for inset knots",
@@ -77,7 +77,7 @@ class StarCurveMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     res_u: IntProperty(
         name="Resolution",
         description="Resolution",

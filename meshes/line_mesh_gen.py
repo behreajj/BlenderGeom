@@ -30,7 +30,7 @@ class LineMeshMaker(bpy.types.Operator):
         precision=3,
         size=3,
         subtype="TRANSLATION") # type: ignore
-    
+
     dest: FloatVectorProperty(
         name="Destination",
         description="Line destination",
@@ -39,14 +39,14 @@ class LineMeshMaker(bpy.types.Operator):
         precision=3,
         size=3,
         subtype="TRANSLATION") # type: ignore
-    
+
     subdiv: IntProperty(
         name="Subdivisions",
         description="Subdivisions",
         min=1,
         soft_max=64,
         default=1) # type: ignore
-    
+
     def execute(self, context):
         orig = self.orig
         dest = self.dest
@@ -76,11 +76,11 @@ class LineMeshMaker(bpy.types.Operator):
         context.scene.collection.objects.link(mesh_obj)
 
         return {"FINISHED"}
-    
+
     @classmethod
     def poll(cls, context):
         return context.area.type == "VIEW_3D"
-    
+
 
 def menu_func(self, context):
     self.layout.operator(LineMeshMaker.bl_idname, icon="MESH_DATA")

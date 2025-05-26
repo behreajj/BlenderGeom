@@ -62,7 +62,7 @@ class ArcMeshMaker(bpy.types.Operator):
         min=0.0001,
         max=0.9999,
         subtype="FACTOR") # type: ignore
-    
+
     start_angle: FloatProperty(
         name="Start",
         description="Start angle",
@@ -70,7 +70,7 @@ class ArcMeshMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     stop_angle: FloatProperty(
         name="Stop",
         description="Stop angle",
@@ -78,7 +78,7 @@ class ArcMeshMaker(bpy.types.Operator):
         default=math.pi * 0.5,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-        
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Arc origin",
@@ -87,7 +87,7 @@ class ArcMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -174,14 +174,14 @@ class ArcMeshMaker(bpy.types.Operator):
             context.scene.collection.objects.link(mesh_obj)
 
             return {"FINISHED"}
-        
+
         # Find points on arc without translation.
         fudge = 0
         if arc_len % (math.pi * 0.5) > 0.00001:
             fudge = fudge + 1
         sectors_per_arc = max(2, math.ceil(fudge
             + sectors_per_circle * arc_len / math.tau))
-        
+
         to_step = 1.0 / (sectors_per_arc - 1.0)
         dest_angle = angle0 + arc_len
         arc_points = [(0.0, 0.0)] * sectors_per_arc
@@ -202,15 +202,15 @@ class ArcMeshMaker(bpy.types.Operator):
 
             len_fs = 1
             fs = [tuple([0] * sectors_per_arc)]
-        
+
         elif arc_type == "PIE":
-        
+
             len_vs = sectors_per_arc + 1
             len_fs = sectors_per_arc - 1
             fs = [(0, 0, 0)] * len_fs
-        
+
         elif arc_type == "SECTOR":
-        
+
             len_vs = sectors_per_arc * 2
             len_fs = sectors_per_arc - 1
             fs = [(0, 0, 0, 0)] * len_fs
@@ -220,13 +220,13 @@ class ArcMeshMaker(bpy.types.Operator):
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
         if arc_type == "CHORD":
-            
+
             j = 0
             while j < sectors_per_arc:
                 point = arc_points[j]
                 vs[j] = (x_orig + radius * point[0],
                          y_orig + radius * point[1], 0.0)
-                vts[j] = (point[0] * 0.5 + 0.5, 
+                vts[j] = (point[0] * 0.5 + 0.5,
                           point[1] * 0.5 + 0.5)
                 j = j + 1
 
@@ -247,7 +247,7 @@ class ArcMeshMaker(bpy.types.Operator):
                 point = arc_points[j]
                 vs[1 + j] = (x_orig + radius * point[0],
                              y_orig + radius * point[1], 0.0)
-                vts[1 + j] = (0.5 * point[0] + 0.5, 
+                vts[1 + j] = (0.5 * point[0] + 0.5,
                               0.5 * point[1] + 0.5)
                 j = j + 1
 
@@ -264,14 +264,14 @@ class ArcMeshMaker(bpy.types.Operator):
                 point = arc_points[j]
                 vs[j] = (x_orig + radius * point[0],
                          y_orig + radius * point[1], 0.0)
-                vts[j] = (0.5 * point[0] + 0.5, 
+                vts[j] = (0.5 * point[0] + 0.5,
                           0.5 * point[1] + 0.5)
 
                 j = j + 1
 
                 vs[len_vs - j] = (x_orig + r_inner * point[0],
                           y_orig + r_inner * point[1], 0.0)
-                vts[len_vs - j] = (0.5 * r_scalar * point[0] + 0.5, 
+                vts[len_vs - j] = (0.5 * r_scalar * point[0] + 0.5,
                            0.5 * r_scalar * point[1] + 0.5)
 
             # Construct quads.

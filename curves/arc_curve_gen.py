@@ -60,7 +60,7 @@ class ArcCurveMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     stop_angle: FloatProperty(
         name="Stop",
         description="Stop angle",
@@ -154,7 +154,7 @@ class ArcCurveMaker(bpy.types.Operator):
                     knot_inner.co = (co_x, co_y, 0.0)
                     knot_inner.handle_left = (co_x - hm_sina, co_y + hm_cosa, 0.0)
                     knot_inner.handle_right = (co_x + hm_sina, co_y - hm_cosa, 0.0)
-                    
+
                     j = j + 1
 
             crv_obj = bpy.data.objects.new(crv_data.name, crv_data)

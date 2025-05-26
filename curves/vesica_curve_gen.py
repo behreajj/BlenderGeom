@@ -58,7 +58,7 @@ class VesicaCurveMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Vesica origin",
@@ -67,7 +67,7 @@ class VesicaCurveMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     res_u: IntProperty(
         name="Resolution",
         description="Resolution",
@@ -146,7 +146,7 @@ class VesicaCurveMaker(bpy.types.Operator):
             points[6] = (-0.7937326154943315, 0.35726558990816354, 0.0)
             points[7] = (-1.0, 0.0, 0.0)
             points[8] = (-0.7937326154943315, -0.35726558990816354, 0.0)
-            
+
             points[9] = (-0.4125347690113375, -0.5773502691896258, 0.0)
             points[10] = (0.0, -0.5773502691896258, 0.0)
             points[11] = (0.4125347690113375, -0.5773502691896258, 0.0)

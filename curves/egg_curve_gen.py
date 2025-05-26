@@ -31,7 +31,7 @@ class EggCurveMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Knot offset angle",
@@ -41,7 +41,7 @@ class EggCurveMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Egg origin",
@@ -50,14 +50,14 @@ class EggCurveMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     res_u: IntProperty(
         name="Resolution",
         description="Resolution",
         min=1,
         soft_max=64,
         default=24) # type: ignore
-    
+
     @staticmethod
     def rotate_z(v, cosa, sina):
         return (cosa * v[0] - sina * v[1],
@@ -71,7 +71,7 @@ class EggCurveMaker(bpy.types.Operator):
     @staticmethod
     def translate(v, t):
         return (v[0] + t[0], v[1] + t[1], 0.0)
-    
+
     def execute(self, context):
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle

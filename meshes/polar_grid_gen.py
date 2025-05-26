@@ -47,7 +47,7 @@ class PolarGridMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Offset angle",
@@ -57,7 +57,7 @@ class PolarGridMaker(bpy.types.Operator):
         default=0.0,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Grid origin",
@@ -66,7 +66,7 @@ class PolarGridMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -109,7 +109,7 @@ class PolarGridMaker(bpy.types.Operator):
                 bm_face_loop.vert.normal = vns[vn_loop[k]]
 
         return bm
-    
+
     def execute(self, context):
         rings = max(1, self.rings)
         sectors = max(3, self.sectors)
@@ -137,7 +137,7 @@ class PolarGridMaker(bpy.types.Operator):
         while k < ring_sec:
             sector = k % sectors
             ring = k // sectors
-            
+
             t = ring * to_ring_fac
             u = 1.0 - t
             radius = u * min_radius + t * max_radius

@@ -31,7 +31,7 @@ class ReuleauxCurveMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-    
+
     offset_angle: FloatProperty(
         name="Angle",
         description="Knot offset angle",
@@ -41,7 +41,7 @@ class ReuleauxCurveMaker(bpy.types.Operator):
         default=math.pi * 0.5,
         subtype="ANGLE",
         unit="ROTATION") # type: ignore
-    
+
     origin: FloatVectorProperty(
         name="Origin",
         description="Reuleaux triangle origin",
@@ -50,14 +50,14 @@ class ReuleauxCurveMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     res_u: IntProperty(
         name="Resolution",
         description="Resolution",
         min=1,
         soft_max=64,
         default=24) # type: ignore
-    
+
     @staticmethod
     def rotate_z(v, cosa, sina):
         return (cosa * v[0] - sina * v[1],
@@ -71,7 +71,7 @@ class ReuleauxCurveMaker(bpy.types.Operator):
     @staticmethod
     def translate(v, t):
         return (v[0] + t[0], v[1] + t[1], 0.0)
-    
+
     def execute(self, context):
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
@@ -158,11 +158,11 @@ class ReuleauxCurveMaker(bpy.types.Operator):
         context.scene.collection.objects.link(crv_obj)
 
         return {"FINISHED"}
-    
+
     @classmethod
     def poll(cls, context):
         return context.area.type == "VIEW_3D"
-    
+
 
 def menu_func(self, context):
     self.layout.operator(ReuleauxCurveMaker.bl_idname, icon="CURVE_BEZCURVE")

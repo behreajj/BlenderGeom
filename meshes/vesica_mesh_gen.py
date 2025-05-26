@@ -163,7 +163,7 @@ class VesicaMeshMaker(bpy.types.Operator):
         x_arc_btm_origin = 0.0
         y_arc_btm_origin = 0.5773502691896258
         x_arc_top_origin = 0.0
-        y_arc_top_origin = -0.5773502691896258     
+        y_arc_top_origin = -0.5773502691896258
 
         # Arc length is 120 degrees
         start_angle_arc_top = math.radians(30)
@@ -273,7 +273,7 @@ class VesicaMeshMaker(bpy.types.Operator):
             vts[sectors_per_arc + i] = (x_btm * 0.5 + 0.5,
                                         y_btm * 0.5 + 0.5)
 
-            i = i + 1 
+            i = i + 1
 
         fs = []
         if face_type == "TRI_FAN":

@@ -31,7 +31,7 @@ class StarMeshMaker(bpy.types.Operator):
         soft_max=32,
         default=5,
         step=1) # type: ignore
-    
+
     skip: IntVectorProperty(
         name="Skip",
         description="Vertices to skip",
@@ -48,7 +48,7 @@ class StarMeshMaker(bpy.types.Operator):
         step=1,
         precision=3,
         default=0.5) # type: ignore
-        
+
     inset: FloatProperty(
         name="Inset",
         description="Radius factor for inset vertices",
@@ -77,7 +77,7 @@ class StarMeshMaker(bpy.types.Operator):
         precision=3,
         size=2,
         subtype="TRANSLATION") # type: ignore
-    
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -120,7 +120,7 @@ class StarMeshMaker(bpy.types.Operator):
                 bm_face_loop.vert.normal = vns[vn_loop[k]]
 
         return bm
-    
+
     def execute(self, context):
         sectors = self.sectors
         skip = self.skip
@@ -147,7 +147,7 @@ class StarMeshMaker(bpy.types.Operator):
         vs = [(0.0, 0.0, 0.0)] * len_vs
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
-        
+
         to_theta = math.tau / len_vs
 
         if not_valid:
@@ -174,11 +174,11 @@ class StarMeshMaker(bpy.types.Operator):
                 if j % pick_skip < v_pick:
                     v_radius = radius
                     vt_radius = 0.5
-                
+
                 angle = offset_angle + j * to_theta
                 cos_a = math.cos(angle)
                 sin_a = math.sin(angle)
-                
+
                 vs[j] = (
                     x_center + v_radius * cos_a,
                     y_center + v_radius * sin_a,
@@ -186,7 +186,7 @@ class StarMeshMaker(bpy.types.Operator):
                 vts[j] = (
                     0.5 + vt_radius * cos_a,
                     0.5 + vt_radius * sin_a)
-                
+
         f = [0] * len_vs
         k = 0
         while k < len_vs:
@@ -207,11 +207,11 @@ class StarMeshMaker(bpy.types.Operator):
         context.scene.collection.objects.link(mesh_obj)
 
         return {"FINISHED"}
-    
+
     @classmethod
     def poll(cls, context):
         return context.area.type == "VIEW_3D"
-    
+
 
 def menu_func(self, context):
     self.layout.operator(StarMeshMaker.bl_idname, icon="MESH_DATA")
