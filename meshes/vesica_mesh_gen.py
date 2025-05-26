@@ -81,8 +81,9 @@ class VesicaMeshMaker(bpy.types.Operator):
     face_type: EnumProperty(
         items=[
             ("NGON", "NGon", "Fill with an ngon", 1),
-            ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 2),
-            ("QUAD_STRIP", "Quad Strip", "Fill with quads except for the tips", 3)],
+            ("QUAD_STRIP", "Quad Strip", "Fill with quads except for the tips", 2),
+            ("STROKE", "Stroke", "Connect vertices with edges only", 3),
+            ("TRI_FAN", "Tri Fan", "Fill with triangles sharing a central vertex", 4)],
         name="Face Type",
         default="NGON",
         description="How to fill the vesica") # type: ignore
@@ -106,8 +107,11 @@ class VesicaMeshMaker(bpy.types.Operator):
         bm_faces = [None] * len_v_indices
         uv_layer = bm.loops.layers.uv.verify()
 
-        # TODO: Support stroke with no faces? See arc mesh.
-        # Needs to be closed form, so use modulo operator.
+        if len_v_indices <= 0:
+            for h in range(0, len_vs):
+                bm.edges.new([
+                    bm_verts[h],
+                    bm_verts[(h + 1) % len_vs]])
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
@@ -276,16 +280,13 @@ class VesicaMeshMaker(bpy.types.Operator):
             i = i + 1
 
         fs = []
-        if face_type == "TRI_FAN":
-            len_fs = sectors_per_arc * 2 - 2
-            fs = [(0, 0, 0)] * len_fs
+        if face_type == "NGON":
+            f = [0] * len_vs
             j = 0
-            while j < len_fs:
-                fs[j] = (
-                    len_vs - 1,
-                    j % (len_vs - 1),
-                    (j + 1) % (len_vs - 1))
+            while j < len_vs:
+                f[j] = j
                 j = j + 1
+            fs = [tuple(f)]
         elif face_type == "QUAD_STRIP":
             len_fs = sectors_per_arc - 1
             fs = [(0, 0, 0, 0)] * len_fs
@@ -304,13 +305,16 @@ class VesicaMeshMaker(bpy.types.Operator):
                 sectors_per_arc - 1,
                 sectors_per_arc,
                 sectors_per_arc - 2)
-        else:
-            f = [0] * len_vs
+        elif face_type == "TRI_FAN":
+            len_fs = sectors_per_arc * 2 - 2
+            fs = [(0, 0, 0)] * len_fs
             j = 0
-            while j < len_vs:
-                f[j] = j
+            while j < len_fs:
+                fs[j] = (
+                    len_vs - 1,
+                    j % (len_vs - 1),
+                    (j + 1) % (len_vs - 1))
                 j = j + 1
-            fs = [tuple(f)]
 
         bm = VesicaMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
