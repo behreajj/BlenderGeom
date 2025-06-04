@@ -155,7 +155,7 @@ class ReuleauxCurveMaker(bpy.types.Operator):
 
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
-        context.scene.collection.objects.link(crv_obj)
+        context.collection.objects.link(crv_obj)
 
         return {"FINISHED"}
 

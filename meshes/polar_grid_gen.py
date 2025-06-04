@@ -191,7 +191,7 @@ class PolarGridMaker(bpy.types.Operator):
 
         mesh_obj = bpy.data.objects.new(mesh_data.name, mesh_data)
         mesh_obj.location = context.scene.cursor.location
-        context.scene.collection.objects.link(mesh_obj)
+        context.collection.objects.link(mesh_obj)
 
         return {"FINISHED"}
 
