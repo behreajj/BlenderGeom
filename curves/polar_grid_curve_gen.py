@@ -18,7 +18,7 @@ bl_info = {
 class PolarGridMaker(bpy.types.Operator):
     """Creates a Bezier curve polar grid"""
 
-    bl_idname = "curve.primitive_arc_add"
+    bl_idname = "curve.primitive_polar_grid_add"
     bl_label = "Polar Grid"
     bl_options = {"REGISTER", "UNDO"}
 
