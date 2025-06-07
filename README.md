@@ -28,6 +28,10 @@ A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
 
 A segmented line.
 
+![Polar Grid](screenCaps/curves/polarGrid.png)
+
+A [polar grid](https://en.wikipedia.org/wiki/Polar_coordinate_system).
+
 ![Star](screenCaps/curves/curveStar.png)
 
 A star.
