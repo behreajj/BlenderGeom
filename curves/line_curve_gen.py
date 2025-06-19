@@ -56,6 +56,13 @@ class LineCurveMaker(bpy.types.Operator):
         default="FREE",
         description="Handle type to use for left and right handle") # type: ignore
 
+    res_u: IntProperty(
+        name="Resolution",
+        description="Resolution",
+        min=1,
+        soft_max=64,
+        default=24) # type: ignore
+
     def execute(self, context):
         orig = self.orig
         dest = self.dest
@@ -71,6 +78,7 @@ class LineCurveMaker(bpy.types.Operator):
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
         spline.use_cyclic_u = False
+        spline.resolution_u = self.res_u
 
         bz_pts = spline.bezier_points
         bz_pts.add(subdiv)
