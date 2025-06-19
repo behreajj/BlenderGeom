@@ -20,6 +20,10 @@ A circle with a variable knot count.
 
 An egg.
 
+![Infinity Loop](screenCaps/curves/infinityLoop.png)
+
+An infinity loop.
+
 ![Reuleaux](screenCaps/curves/curveReuleaux.png)
 
 A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
