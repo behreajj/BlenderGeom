@@ -22,7 +22,7 @@ An egg.
 
 ![Infinity Loop](screenCaps/curves/infinityLoop.png)
 
-An infinity loop.
+An infinity loop, or [lemniscate of Bernoulli](https://en.wikipedia.org/wiki/Lemniscate_of_Bernoulli).
 
 ![Reuleaux](screenCaps/curves/curveReuleaux.png)
 
@@ -53,6 +53,10 @@ An arc.
 ![Egg](screenCaps/meshes/meshEgg.png)
 
 An egg (2D).
+
+![Infinity Loop](screenCaps/meshes/meshInfinityLoop.png)
+
+An infinity loop.
 
 ![Polar Grid](screenCaps/meshes/meshPolarGrid.png)
 

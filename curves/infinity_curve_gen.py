@@ -73,6 +73,13 @@ class InfinityCurveMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], 0.0)
 
     def execute(self, context):
+        # TODO: Set tilt for knots?
+        # Would have to set twist mode to Z-Up.
+        # If you had 8 knots, there would be
+        # 360/8 = 45 deg increments, but you skip
+        # the middle x formed by two crossing knots.
+        # Initial knot should be 360!
+
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
         origin = self.origin
