@@ -2,8 +2,6 @@ import bpy # type: ignore
 import bmesh # type: ignore
 import math
 from bpy.props import ( # type: ignore
-    BoolProperty,
-    EnumProperty,
     FloatProperty,
     FloatVectorProperty,
     IntProperty)

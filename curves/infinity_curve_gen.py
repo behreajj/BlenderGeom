@@ -79,6 +79,7 @@ class InfinityCurveMaker(bpy.types.Operator):
         # 360/8 = 45 deg increments, but you skip
         # the middle x formed by two crossing knots.
         # Initial knot should be 360!
+        # Maybe use [-180, 180] as tilt range?
 
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
