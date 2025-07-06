@@ -22,6 +22,8 @@ bl_info = {
 class EggMeshMaker(bpy.types.Operator):
     """Creates a mesh egg"""
 
+    # TODO: Make a 3D version!
+
     bl_idname = "mesh.primitive_egg_add"
     bl_label = "Egg"
     bl_options = {"REGISTER", "UNDO"}
@@ -172,60 +174,60 @@ class EggMeshMaker(bpy.types.Operator):
         i_to_theta = math.pi / (sectors_per_bottom - 1)
         i_radius = 1.0 / 1.2886751345948129
 
-        i = 1
-        while i < sectors_per_bottom:
-            theta = math.pi + i * i_to_theta
-            x = i_radius * math.cos(theta)
-            y = i_radius * math.sin(theta)
-            idx = i - 1
-            vs[idx] = (x, y , 0.0)
-            vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
-            i = i + 1
-
         j_to_theta = pi_qrtr / (sectors_per_side - 1)
         j_radius = 2.0 / 1.2886751345948129
+
+        k_to_theta = pi_half / (sectors_per_top - 1)
+        k_radius = (1.0 / sqrt_3) / 1.2886751345948129
+
+        m_to_theta = pi_qrtr / (sectors_per_side - 1)
+        m_radius = 2.0 / 1.2886751345948129
 
         j = 1
         while j < sectors_per_side:
             theta = j * j_to_theta
             x = -i_radius + j_radius * math.cos(theta)
             y = j_radius * math.sin(theta)
-            idx = (sectors_per_bottom - 1) \
-                + j - 1
+            idx = j - 1
             vs[idx] = (x, y , 0.0)
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             j = j + 1
-
-        k_to_theta = pi_half / (sectors_per_top - 1)
-        k_radius = (1.0 / sqrt_3) / 1.2886751345948129
 
         k = 1
         while k < sectors_per_top:
             theta = pi_qrtr + k * k_to_theta
             x = k_radius * math.cos(theta)
             y = i_radius + k_radius * math.sin(theta)
-            idx = (sectors_per_bottom - 1) \
-                + (sectors_per_side - 1) \
+            idx = (sectors_per_side - 1) \
                 + k - 1
             vs[idx] = (x, y , 0.0)
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             k = k + 1
-
-        m_to_theta = pi_qrtr / (sectors_per_side - 1)
-        m_radius = 2.0 / 1.2886751345948129
 
         m = 1
         while m < sectors_per_side:
             theta = pi_75pc + m * m_to_theta
             x = i_radius + m_radius * math.cos(theta)
             y = m_radius * math.sin(theta)
-            idx = (sectors_per_bottom - 1) \
-                + (sectors_per_side - 1) \
+            idx = (sectors_per_side - 1) \
                 + (sectors_per_top - 1) \
                 + m - 1
             vs[idx] = (x, y , 0.0)
             vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
             m = m + 1
+
+        i = 1
+        while i < sectors_per_bottom:
+            theta = math.pi + i * i_to_theta
+            x = i_radius * math.cos(theta)
+            y = i_radius * math.sin(theta)
+            idx = (sectors_per_side - 1) \
+                + (sectors_per_top - 1) \
+                + (sectors_per_side - 1) \
+                + i - 1
+            vs[idx] = (x, y , 0.0)
+            vts[idx] = (x * 0.5 + 0.5, (y - y_displace) * 0.5 + 0.5)
+            i = i + 1
 
         origin_displace = EggMeshMaker.translate(
             origin, (0.0, -y_displace * radius))
