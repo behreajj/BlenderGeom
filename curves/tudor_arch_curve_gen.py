@@ -72,7 +72,7 @@ class TudorArchCurveMaker(bpy.types.Operator):
         bz_pts = spline.bezier_points
         bz_pts.add(4)
 
-        # Local to its origin, the larger arc starts at
+        # Local to its origin (-1, -2), the larger arc starts at
         # (1.8, 2.4)
         # 0.9272952180016122 radians (53.13010235415598 degrees)
         # and ends at
