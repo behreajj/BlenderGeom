@@ -17,7 +17,7 @@ bl_info = {
 
 
 class ReuleauxCurveMaker(bpy.types.Operator):
-    """Creates a Bezier Reuleaux triangle"""
+    """Creates a Bezier curve Reuleaux triangle"""
 
     bl_idname = "curve.primitive_reuleaux_add"
     bl_label = "Reuleaux Triangle"
