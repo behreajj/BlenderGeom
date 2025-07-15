@@ -43,6 +43,7 @@ class ArcCurveMaker(bpy.types.Operator):
         precision=3,
         default=0.5) # type: ignore
 
+    # TODO: Make this consistent with tudor arch extrude and offset?
     r_scalar: FloatProperty(
         name="Inset",
         description="Inner radius scale (for sector type arcs only)",

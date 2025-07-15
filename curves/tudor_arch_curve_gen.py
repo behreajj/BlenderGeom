@@ -23,6 +23,26 @@ class TudorArchCurveMaker(bpy.types.Operator):
     bl_label = "Tudor Arch"
     bl_options = {"REGISTER", "UNDO"}
 
+    arch_weight: FloatProperty(
+        name="Extrude",
+        description="Arch extrusion weight",
+        default=0.0,
+        step=1,
+        precision=3,
+        min=0.0,
+        max=1.0,
+        subtype="FACTOR") # type: ignore
+
+    arch_offset: FloatProperty(
+        name="Offset",
+        description="Arch weight offset",
+        default=0.0,
+        step=1,
+        precision=3,
+        min=-1.0,
+        max=1.0,
+        subtype="FACTOR") # type: ignore
+
     radius: FloatProperty(
         name="Radius",
         description="Arch radius",
@@ -57,8 +77,25 @@ class TudorArchCurveMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], 0.0)
 
     def execute(self, context):
-        radius = max(0.000001, self.radius)
+        arch_weight = min(max(self.arch_weight, 0.0), 1.0)
+        arch_offset = min(max(self.arch_offset, -1.0), 1.0)
+        radius_center = max(0.000001, self.radius)
         origin = self.origin
+
+        use_extrude = arch_weight > 0.0
+        radius_inner = radius_center
+        radius_outer = radius_center
+        if use_extrude:
+            radius_inner_limit = radius_center \
+                - radius_center * arch_weight
+            radius_outer_limit = radius_center \
+                + radius_center * arch_weight
+
+            arch_offset_01 = arch_offset * 0.5 + 0.5
+            radius_inner = arch_offset_01 * radius_center \
+                + (1.0 - arch_offset_01) * radius_inner_limit
+            radius_outer = (1.0 - arch_offset_01) * radius_center \
+                + arch_offset_01 * radius_outer_limit
 
         crv_data = bpy.data.curves.new("Tudor Arch", "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
@@ -66,11 +103,15 @@ class TudorArchCurveMaker(bpy.types.Operator):
 
         crv_splines = crv_data.splines
         spline = crv_splines.new("BEZIER")
-        spline.use_cyclic_u = False
+        spline.use_cyclic_u = use_extrude
         spline.resolution_u = self.res_u
 
+        knot_count = 5
+        if use_extrude:
+            knot_count = 10
+
         bz_pts = spline.bezier_points
-        bz_pts.add(4)
+        bz_pts.add(knot_count - 1)
 
         # Local to its origin (-1, -2), the larger arc starts at
         # (1.8, 2.4)
@@ -109,25 +150,96 @@ class TudorArchCurveMaker(bpy.types.Operator):
             (-1.0, -0.15737865166652645, 0.0), # fh
         ]
 
-        i = 0
-        for knot in bz_pts:
-            rh = points[i]
-            co = points[i + 1]
-            fh = points[i + 2]
+        # TODO: Add special case for if radius inner is zero.
+        if use_extrude:
+            loop_limit = len(points) // 3
+            i = 0
+            while i < loop_limit:
+                i3 = i * 3
 
-            knot.handle_left_type = "FREE"
-            knot.handle_right_type = "FREE"
-            knot.handle_left = TudorArchCurveMaker.translate(
-                TudorArchCurveMaker.scale(rh, radius),
-                origin)
-            knot.co = TudorArchCurveMaker.translate(
-                TudorArchCurveMaker.scale(co, radius),
-                origin)
-            knot.handle_right = TudorArchCurveMaker.translate(
-                TudorArchCurveMaker.scale(fh, radius),
-                origin)
+                rh = points[i3]
+                co = points[i3 + 1]
+                fh = points[i3 + 2]
 
-            i = i + 3
+                co_outer = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(co, radius_outer),
+                    origin)
+                co_inner = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(co, radius_inner),
+                    origin)
+
+                rh_outer = (0.0, 0.0, 0.0)
+                fh_outer = (0.0, 0.0, 0.0)
+                rh_inner = (0.0, 0.0, 0.0)
+                fh_inner = (0.0, 0.0, 0.0)
+
+                rh_outer = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(rh, radius_outer),
+                    origin)
+                fh_outer = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(fh, radius_outer),
+                    origin)
+
+                rh_inner = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(fh, radius_inner),
+                    origin)
+                fh_inner = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(rh, radius_inner),
+                    origin)
+
+                knot_outer = bz_pts[i]
+                knot_outer.handle_left_type = "FREE"
+                knot_outer.handle_right_type = "FREE"
+                knot_outer.handle_left = rh_outer
+                knot_outer.co = co_outer
+                knot_outer.handle_right = fh_outer
+
+                knot_inner = bz_pts[knot_count - 1 - i]
+                knot_inner.handle_left_type = "FREE"
+                knot_inner.handle_right_type = "FREE"
+                knot_inner.handle_left = rh_inner
+                knot_inner.co = co_inner
+                knot_inner.handle_right = fh_inner
+
+                i = i + 1
+
+            first_outer = bz_pts[0]
+            last_outer = bz_pts[4]
+            first_inner = bz_pts[5]
+            last_inner = bz_pts[9]
+
+            t = 1.0 / 3.0
+            u = 2.0 / 3.0
+
+            first_inner.handle_left_type = "VECTOR"
+            last_outer.handle_right_type = "VECTOR"
+            first_inner.handle_left = u * first_inner.co + t * last_outer.co
+            last_outer.handle_right = u * last_outer.co + t * first_inner.co
+
+            first_outer.handle_left_type = "VECTOR"
+            last_inner.handle_right_type = "VECTOR"
+            first_outer.handle_left = u * first_outer.co + t * last_inner.co
+            last_inner.handle_right = u * last_inner.co + t * first_outer.co
+        else:
+            i = 0
+            for knot in bz_pts:
+                rh = points[i]
+                co = points[i + 1]
+                fh = points[i + 2]
+
+                knot.handle_left_type = "FREE"
+                knot.handle_right_type = "FREE"
+                knot.handle_left = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(rh, radius_center),
+                    origin)
+                knot.co = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(co, radius_center),
+                    origin)
+                knot.handle_right = TudorArchCurveMaker.translate(
+                    TudorArchCurveMaker.scale(fh, radius_center),
+                    origin)
+
+                i = i + 3
 
         crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
         crv_obj.location = context.scene.cursor.location
