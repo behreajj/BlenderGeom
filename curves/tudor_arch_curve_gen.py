@@ -82,10 +82,9 @@ class TudorArchCurveMaker(bpy.types.Operator):
         radius_center = max(0.000001, self.radius)
         origin = self.origin
 
-        use_extrude = arch_weight > 0.0
         radius_inner = radius_center
         radius_outer = radius_center
-        if use_extrude:
+        if arch_weight > 0.0:
             radius_inner_limit = radius_center \
                 - radius_center * arch_weight
             radius_outer_limit = radius_center \
@@ -96,6 +95,9 @@ class TudorArchCurveMaker(bpy.types.Operator):
                 + (1.0 - arch_offset_01) * radius_inner_limit
             radius_outer = (1.0 - arch_offset_01) * radius_center \
                 + arch_offset_01 * radius_outer_limit
+
+        use_extrude = arch_weight > 0.0 \
+            and radius_inner > 0.0
 
         crv_data = bpy.data.curves.new("Tudor Arch", "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
@@ -150,7 +152,6 @@ class TudorArchCurveMaker(bpy.types.Operator):
             (-1.0, -0.15737865166652645, 0.0), # fh
         ]
 
-        # TODO: Add special case for if radius inner is zero.
         if use_extrude:
             loop_limit = len(points) // 3
             i = 0
