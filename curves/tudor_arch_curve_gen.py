@@ -23,6 +23,15 @@ class TudorArchCurveMaker(bpy.types.Operator):
     bl_label = "Tudor Arch"
     bl_options = {"REGISTER", "UNDO"}
 
+    radius: FloatProperty(
+        name="Radius",
+        description="Arch radius",
+        min=0.0001,
+        soft_max=100.0,
+        step=1,
+        precision=3,
+        default=0.5) # type: ignore
+
     arch_weight: FloatProperty(
         name="Extrude",
         description="Arch extrusion weight",
@@ -42,15 +51,6 @@ class TudorArchCurveMaker(bpy.types.Operator):
         min=-1.0,
         max=1.0,
         subtype="FACTOR") # type: ignore
-
-    radius: FloatProperty(
-        name="Radius",
-        description="Arch radius",
-        min=0.0001,
-        soft_max=100.0,
-        step=1,
-        precision=3,
-        default=0.5) # type: ignore
 
     origin: FloatVectorProperty(
         name="Origin",
