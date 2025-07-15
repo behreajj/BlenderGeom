@@ -40,6 +40,10 @@ A [polar grid](https://en.wikipedia.org/wiki/Polar_coordinate_system).
 
 A star.
 
+![Tudor Arch](screenCaps/curves/curveTudorArch.png)
+
+A [Tudor arch](https://en.wikipedia.org/wiki/Four-centred_arch).
+
 ![Vesica](screenCaps/curves/curveVesica.png)
 
 A [vesica piscis](https://en.wikipedia.org/wiki/Vesica_piscis), the intersection of two circles.
