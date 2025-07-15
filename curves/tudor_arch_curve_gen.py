@@ -122,8 +122,13 @@ class TudorArchCurveMaker(bpy.types.Operator):
         # (1, 2.8284271247461900976033774484194)
         # 1.2309594173407747 radians (70.52877936550931 degrees)
         # where the y coordinate is 2 * math.sqrt(2).
+        #
         # The angle between them is
         # 0.303664199339163 radians (17.398677011353364 degrees).
+        #
+        # For the larger arc at (1, -2), the angles are
+        # 1.9106332362490184 radians (109.47122063449069 degrees)
+        # to 2.214297435588181 radians (126.86989764584402 degrees).
 
         points = [
             # 0 Bottom right knot
