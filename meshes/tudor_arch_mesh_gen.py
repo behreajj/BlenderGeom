@@ -2,11 +2,10 @@ import bpy # type: ignore
 import bmesh # type: ignore
 import math
 from bpy.props import ( # type: ignore
-    BoolProperty,
     EnumProperty,
     FloatProperty,
     FloatVectorProperty,
-    IntProperty)
+    IntVectorProperty)
 
 bl_info = {
     "name": "Create Tudor Arch Mesh",
@@ -26,13 +25,13 @@ class TudorArchMeshMaker(bpy.types.Operator):
     bl_label = "Tudor Arch"
     bl_options = {"REGISTER", "UNDO"}
 
-    sectors: IntProperty(
+    sectors: IntVectorProperty(
         name="Vertices",
-        description="Number of points per small corner arc in an arch.",
-        min=3,
-        soft_max=500,
-        default=16,
-        step=1) # type: ignore
+        description="Number of points in an arch. The small corner arc is the x coordinate. The larger arc is y",
+        default=(12, 24),
+        min = 3,
+        soft_max = 500,
+        size=2) # type: ignore
 
     radius: FloatProperty(
         name="Radius",
@@ -72,6 +71,14 @@ class TudorArchMeshMaker(bpy.types.Operator):
         size=2,
         subtype="TRANSLATION") # type: ignore
 
+    face_type: EnumProperty(
+        items=[
+            ("NGON", "NGon", "Fill with an ngon", 1),
+            ("QUADS", "Quads", "Fill with quads", 2)],
+        name="Face Type",
+        default="NGON",
+        description="How to fill the triangle") # type: ignore
+
     @staticmethod
     def mesh_data_to_bmesh(
             vs, vts, vns,
@@ -92,10 +99,8 @@ class TudorArchMeshMaker(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
 
         if len_v_indices <= 0:
-            for h in range(0, len_vs):
-                bm.edges.new([
-                    bm_verts[h],
-                    bm_verts[(h + 1) % len_vs]])
+            for h in range(0, len_vs - 1):
+                bm.edges.new([bm_verts[h], bm_verts[h + 1]])
 
         for i in range(0, len_v_indices):
             v_loop = v_indices[i]
@@ -138,8 +143,8 @@ class TudorArchMeshMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], v[2] + t[2])
 
     def execute(self, context):
-        sectors_minor = max(3, self.sectors)
-        sectors_major = sectors_minor * 2
+        sectors_minor = max(3, self.sectors[0])
+        sectors_major = max(3, self.sectors[1])
 
         arch_weight = min(max(self.arch_weight, 0.0), 1.0)
         arch_offset = min(max(self.arch_offset, -1.0), 1.0)
@@ -248,11 +253,8 @@ class TudorArchMeshMaker(bpy.types.Operator):
                         origin3)
 
                 vs[cursor] = v_outer
-                # cursor = cursor + 1
-
                 vs[len_vs - 1 - cursor] = v_inner
                 cursor = cursor + 1
-                # cursor = cursor + 2
             else:
                 v_start = TudorArchMeshMaker.translate3(
                     TudorArchMeshMaker.scale3(
@@ -288,11 +290,8 @@ class TudorArchMeshMaker(bpy.types.Operator):
                             origin3)
 
                     vs[cursor] = v_outer
-                    # cursor = cursor + 1
-
                     vs[len_vs - 1 - cursor] = v_inner
                     cursor = cursor + 1
-                    # cursor = cursor + 2
                 else:
                     v = TudorArchMeshMaker.translate3(
                         TudorArchMeshMaker.scale3(
@@ -321,7 +320,6 @@ class TudorArchMeshMaker(bpy.types.Operator):
                     origin3)
 
             vs[cursor] = v_outer
-
             vs[len_vs - 1 - cursor] = v_inner
             cursor = cursor + 1
         else:
@@ -334,6 +332,9 @@ class TudorArchMeshMaker(bpy.types.Operator):
             cursor = cursor + 1
 
         fs = []
+        if create_faces:
+            # TODO: Implement.
+            pass
 
         bm = TudorArchMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,

@@ -3,7 +3,8 @@ import math
 from bpy.props import ( # type: ignore
     FloatProperty,
     FloatVectorProperty,
-    IntProperty)
+    IntProperty,
+    IntVectorProperty)
 
 bl_info = {
     "name": "Create Tudor Arch Curve",
