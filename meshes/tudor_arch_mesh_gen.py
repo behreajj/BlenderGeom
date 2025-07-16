@@ -76,7 +76,7 @@ class TudorArchMeshMaker(bpy.types.Operator):
             ("NGON", "NGon", "Fill with an ngon", 1),
             ("QUADS", "Quads", "Fill with quads", 2)],
         name="Face Type",
-        default="NGON",
+        default="QUADS",
         description="How to fill the triangle") # type: ignore
 
     @staticmethod
@@ -152,7 +152,11 @@ class TudorArchMeshMaker(bpy.types.Operator):
         radius_center = max(0.000001, self.radius)
         radius_inner = radius_center
         radius_outer = radius_center
-        if arch_weight > 0.0:
+
+        arch_weight_gt_zero = arch_weight > 0.0
+        radius_inner_gt_zero = radius_inner > 0.0
+
+        if arch_weight_gt_zero:
             radius_inner_limit = radius_center \
                 - radius_center * arch_weight
             radius_outer_limit = radius_center \
@@ -164,8 +168,10 @@ class TudorArchMeshMaker(bpy.types.Operator):
             radius_outer = (1.0 - arch_offset_01) * radius_center \
                 + arch_offset_01 * radius_outer_limit
 
-        create_faces = arch_weight > 0.0 \
-            and radius_inner > 0.0
+        # TODO: Support a filled arch when radius_inner <= 0.0
+        create_faces = arch_weight_gt_zero \
+            and radius_inner_gt_zero
+        face_type = self.face_type
 
         origin2 = self.origin
         origin3 = (origin2[0], origin2[1], 0.0)
@@ -237,10 +243,6 @@ class TudorArchMeshMaker(bpy.types.Operator):
             radians_orig = arc_radians_orig[i]
             radians_dest = arc_radians_dest[i]
 
-            # print(f"center_local: ({center_local[0]}, {center_local[1]})")
-            # print(f"radians_orig: {radians_orig}")
-            # print(f"radians_dest: {radians_dest}")
-
             if create_faces:
                 v_inner = TudorArchMeshMaker.translate3(
                     TudorArchMeshMaker.scale3(
@@ -260,8 +262,6 @@ class TudorArchMeshMaker(bpy.types.Operator):
                     TudorArchMeshMaker.scale3(
                         start_point, radius_center),
                         origin3)
-
-                # print(f"cursor: {cursor} v_start: ({v_start[0]}, {v_start[1]})")
                 vs[cursor] = v_start
                 cursor = cursor + 1
 
@@ -297,8 +297,6 @@ class TudorArchMeshMaker(bpy.types.Operator):
                         TudorArchMeshMaker.scale3(
                             v_local, radius_center),
                             origin3)
-
-                    # print(f"cursor: {cursor} v: ({v_local[0]}, {v_local[1]})")
                     vs[cursor] = v
                     cursor = cursor + 1
 
@@ -333,8 +331,26 @@ class TudorArchMeshMaker(bpy.types.Operator):
 
         fs = []
         if create_faces:
-            # TODO: Implement.
-            pass
+            if face_type == "QUADS":
+                len_fs = sector_count_total - 1
+                fs = [(0, 0, 0, 0)] * len_fs
+
+                k = 0
+                while k < len_fs:
+                    fs[k] = (
+                        k,
+                        k + 1,
+                        len_vs - k - 2,
+                        len_vs - k - 1)
+                    k = k + 1
+            else:
+                # Construct an n-gon face.
+                k = 0
+                f = [0] * len_vs
+                while k < len_vs:
+                    f[k] = k
+                    k = k + 1
+                fs = [tuple(f)] # type: ignore
 
         bm = TudorArchMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
