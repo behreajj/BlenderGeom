@@ -78,6 +78,10 @@ A segmented line.
 
 A star.
 
+![Tudor Arch](screenCaps/meshes/meshTudorArch.png)
+
+A tudor arch.
+
 ![Vesica](screenCaps/meshes/meshVesica.png)
 
 A vesica piscis.
