@@ -168,6 +168,9 @@ class TudorArchMeshMaker(bpy.types.Operator):
             radius_outer = (1.0 - arch_offset_01) * radius_center \
                 + arch_offset_01 * radius_outer_limit
 
+        vt_vert_offset = 0.0
+        vt_scalar = radius_inner / radius_outer
+
         # TODO: Support a filled arch when radius_inner <= 0.0
         create_faces = arch_weight_gt_zero \
             and radius_inner_gt_zero
@@ -244,18 +247,28 @@ class TudorArchMeshMaker(bpy.types.Operator):
             radians_dest = arc_radians_dest[i]
 
             if create_faces:
-                v_inner = TudorArchMeshMaker.translate3(
-                    TudorArchMeshMaker.scale3(
-                        start_point, radius_inner),
-                        origin3)
-
                 v_outer = TudorArchMeshMaker.translate3(
                     TudorArchMeshMaker.scale3(
                         start_point, radius_outer),
                         origin3)
+                vt_outer = (
+                    start_point[0] * 0.5 + 0.5,
+                    start_point[1] * 0.5 + vt_vert_offset)
+
+                v_inner = TudorArchMeshMaker.translate3(
+                    TudorArchMeshMaker.scale3(
+                        start_point, radius_inner),
+                        origin3)
+                vt_inner = (
+                    start_point[0] * vt_scalar * 0.5 + 0.5,
+                    start_point[1] * vt_scalar * 0.5 + vt_vert_offset)
 
                 vs[cursor] = v_outer
+                vts[cursor] = vt_outer
+
                 vs[len_vs - 1 - cursor] = v_inner
+                vts[len_vs - 1 - cursor] = vt_inner
+
                 cursor = cursor + 1
             else:
                 v_start = TudorArchMeshMaker.translate3(
@@ -279,18 +292,29 @@ class TudorArchMeshMaker(bpy.types.Operator):
                     0.0)
 
                 if create_faces:
-                    v_inner = TudorArchMeshMaker.translate3(
-                        TudorArchMeshMaker.scale3(
-                            v_local, radius_inner),
-                            origin3)
-
                     v_outer = TudorArchMeshMaker.translate3(
                         TudorArchMeshMaker.scale3(
                             v_local, radius_outer),
                             origin3)
+                    vt_outer = (
+                        v_local[0] * 0.5 + 0.5,
+                        v_local[1] * 0.5 + vt_vert_offset)
+
+
+                    v_inner = TudorArchMeshMaker.translate3(
+                        TudorArchMeshMaker.scale3(
+                            v_local, radius_inner),
+                            origin3)
+                    vt_inner = (
+                        v_local[0] * vt_scalar * 0.5 + 0.5,
+                        v_local[1] * vt_scalar * 0.5 + vt_vert_offset)
 
                     vs[cursor] = v_outer
+                    vts[cursor] = vt_outer
+
                     vs[len_vs - 1 - cursor] = v_inner
+                    vts[len_vs - 1 - cursor] = vt_inner
+
                     cursor = cursor + 1
                 else:
                     v = TudorArchMeshMaker.translate3(
@@ -304,21 +328,30 @@ class TudorArchMeshMaker(bpy.types.Operator):
 
             i = i + 1
 
-
         end_point = (-1.0, 0.0, 0.0)
         if create_faces:
-            v_inner = TudorArchMeshMaker.translate3(
-                TudorArchMeshMaker.scale3(
-                    end_point, radius_inner),
-                    origin3)
-
             v_outer = TudorArchMeshMaker.translate3(
                 TudorArchMeshMaker.scale3(
                     end_point, radius_outer),
                     origin3)
+            vt_outer = (
+                    end_point[0] * 0.5 + 0.5,
+                    end_point[1] * 0.5 + vt_vert_offset)
+
+            v_inner = TudorArchMeshMaker.translate3(
+                TudorArchMeshMaker.scale3(
+                    end_point, radius_inner),
+                    origin3)
+            vt_inner = (
+                    end_point[0] * vt_scalar * 0.5 + 0.5,
+                    end_point[1] * vt_scalar * 0.5 + vt_vert_offset)
 
             vs[cursor] = v_outer
+            vts[cursor] = vt_outer
+
             vs[len_vs - 1 - cursor] = v_inner
+            vts[len_vs - 1 - cursor] = vt_inner
+
             cursor = cursor + 1
         else:
             v_start = TudorArchMeshMaker.translate3(
