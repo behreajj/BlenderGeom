@@ -40,6 +40,10 @@ A [polar grid](https://en.wikipedia.org/wiki/Polar_coordinate_system).
 
 A star.
 
+![Seed of Life](screenCaps/curves/curveSeedOfLife.png)
+
+A [Seed of Life](https://en.wikipedia.org/wiki/Overlapping_circles_grid).
+
 ![Tudor Arch](screenCaps/curves/curveTudorArch.png)
 
 A [Tudor arch](https://en.wikipedia.org/wiki/Four-centred_arch).

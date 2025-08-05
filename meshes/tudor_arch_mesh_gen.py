@@ -231,6 +231,7 @@ class TudorArchMeshMaker(bpy.types.Operator):
         if create_faces:
             len_vs = sector_count_total * 2
 
+        # TODO: Option for straight rectangle uvs rather than a curve?
         vs = [(0.0, 0.0, 0.0)] * len_vs
         vts = [(0.5, 0.5)] * len_vs
         vns = [(0.0, 0.0, 1.0)] * len_vs
