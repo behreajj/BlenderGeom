@@ -1,10 +1,8 @@
 import bpy # type: ignore
-import math
 from bpy.props import ( # type: ignore
     FloatProperty,
     FloatVectorProperty,
-    IntProperty,
-    IntVectorProperty)
+    IntProperty)
 
 bl_info = {
     "name": "Create Tudor Arch Curve",
