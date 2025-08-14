@@ -255,13 +255,23 @@ class LancetArchCurveMaker(bpy.types.Operator):
         rh_y = y_coord[1] - hm_cosa
 
         if use_extrude:
-            # TODO: Does this also have to account for the extrude offset?
-            equilateral_aspect = 2.0 / 1.7320508075688772
-            lancet_aspect = 2.6457513110645903 / 2.0
-            y_trg = (1.0 - sharpness) * equilateral_aspect \
-                + sharpness * lancet_aspect
-            y_aspect_fix = (1.0 - arch_weight) * 1.0 + \
-                arch_weight * y_trg
+            equilateral_aspect_inner = 2.0 / 1.7320508075688772
+            lancet_aspect_inner = 2.6457513110645903 / 2.0
+            y_trg_inner = (1.0 - sharpness) * equilateral_aspect_inner \
+                + sharpness * lancet_aspect_inner
+            y_aspect_fix_inner = (1.0 - arch_weight) * 1.0 + \
+                arch_weight * y_trg_inner
+            
+            equilateral_aspect_outer = 1.7320508075688772 / 2.0
+            lancet_aspect_outer = 2.0 / 2.6457513110645903
+            y_trg_outer = (1.0 - sharpness) * equilateral_aspect_outer \
+                + sharpness * lancet_aspect_outer
+            y_aspect_fix_outer = (1.0 - arch_weight) * 1.0 + \
+                arch_weight * y_trg_outer
+            
+            arch_offset_01 = arch_offset * 0.5 + 0.5
+            y_aspect_fix_inner = (1.0 - arch_offset_01) * y_aspect_fix_inner+ arch_offset_01 * 1.0
+            y_aspect_fix_outer = (1.0 - arch_offset_01) * 1.0 + arch_offset_01 * y_aspect_fix_outer
 
             knot_0 = bz_pts[0] # Outer Right
             knot_1 = bz_pts[1] # Outer Top Center
@@ -275,21 +285,21 @@ class LancetArchCurveMaker(bpy.types.Operator):
             knot_0.co = LancetArchCurveMaker.translate(
                     LancetArchCurveMaker.scale((1.0, 0.0, 0.0), radius_outer),
                     origin)
-            knot_0.handle_left =(0.0, 0.0, 0.0)
+            knot_0.handle_left = (0.0, 0.0, 0.0)
             knot_0.handle_right = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((1.0, handle_mag, 0.0), radius_outer),
+                    LancetArchCurveMaker.scale((1.0, handle_mag * y_aspect_fix_outer, 0.0), radius_outer),
                     origin)
             
             knot_1.handle_left_type = "FREE"
             knot_1.handle_right_type = "FREE"
             knot_1.co = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((0.0, y_coord[1], 0.0), radius_outer),
+                    LancetArchCurveMaker.scale((0.0, y_coord[1] * y_aspect_fix_outer, 0.0), radius_outer),
                     origin)          
             knot_1.handle_left = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((rh_x, rh_y, 0.0), radius_outer),
+                    LancetArchCurveMaker.scale((rh_x, rh_y * y_aspect_fix_outer, 0.0), radius_outer),
                     origin)
             knot_1.handle_right = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((-rh_x, rh_y, 0.0), radius_outer),
+                    LancetArchCurveMaker.scale((-rh_x, rh_y * y_aspect_fix_outer, 0.0), radius_outer),
                     origin)
             
             knot_2.handle_left_type = "FREE"
@@ -298,7 +308,7 @@ class LancetArchCurveMaker(bpy.types.Operator):
                     LancetArchCurveMaker.scale((-1.0, 0.0, 0.0), radius_outer),
                     origin)
             knot_2.handle_left = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((-1.0, handle_mag, 0.0), radius_outer),
+                    LancetArchCurveMaker.scale((-1.0, handle_mag * y_aspect_fix_outer, 0.0), radius_outer),
                     origin)
             knot_2.handle_right = (0.0, 0.0, 0.0)
             
@@ -309,19 +319,19 @@ class LancetArchCurveMaker(bpy.types.Operator):
                     origin)
             knot_3.handle_left = (0.0, 0.0, 0.0)
             knot_3.handle_right = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((-1.0, handle_mag * y_aspect_fix, 0.0), radius_inner),
+                    LancetArchCurveMaker.scale((-1.0, handle_mag * y_aspect_fix_inner, 0.0), radius_inner),
                     origin)
             
             knot_4.handle_left_type = "FREE"
             knot_4.handle_right_type = "FREE"
             knot_4.co = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((0.0, y_coord[1] * y_aspect_fix, 0.0), radius_inner),
+                    LancetArchCurveMaker.scale((0.0, y_coord[1] * y_aspect_fix_inner, 0.0), radius_inner),
                     origin)          
             knot_4.handle_left = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((-rh_x, rh_y * y_aspect_fix, 0.0), radius_inner),
+                    LancetArchCurveMaker.scale((-rh_x, rh_y * y_aspect_fix_inner, 0.0), radius_inner),
                     origin)
             knot_4.handle_right = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((rh_x, rh_y * y_aspect_fix, 0.0), radius_inner),
+                    LancetArchCurveMaker.scale((rh_x, rh_y * y_aspect_fix_inner, 0.0), radius_inner),
                     origin)
             
             knot_5.handle_left_type = "FREE"
@@ -331,7 +341,7 @@ class LancetArchCurveMaker(bpy.types.Operator):
                     origin)
             
             knot_5.handle_left = LancetArchCurveMaker.translate(
-                    LancetArchCurveMaker.scale((1.0, handle_mag * y_aspect_fix, 0.0), radius_inner),
+                    LancetArchCurveMaker.scale((1.0, handle_mag * y_aspect_fix_inner, 0.0), radius_inner),
                     origin)
             knot_5.handle_right = (0.0, 0.0, 0.0)
 
