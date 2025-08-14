@@ -28,6 +28,10 @@ An infinity loop, or [lemniscate of Bernoulli](https://en.wikipedia.org/wiki/Lem
 
 A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
 
+![Lancet Arch](screenCaps/curves/curveLancetArch.png)
+
+A [Lancet arch](https://en.wikipedia.org/wiki/Lancet_window).
+
 ![Line](screenCaps/curves/curveLine.png)
 
 A segmented line.

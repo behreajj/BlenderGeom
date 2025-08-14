@@ -255,7 +255,7 @@ class LancetArchCurveMaker(bpy.types.Operator):
         rh_y = y_coord[1] - hm_cosa
 
         if use_extrude:
-            # Does this also have to account for the offset?
+            # TODO: Does this also have to account for the extrude offset?
             equilateral_aspect = 2.0 / 1.7320508075688772
             lancet_aspect = 2.6457513110645903 / 2.0
             y_trg = (1.0 - sharpness) * equilateral_aspect \
