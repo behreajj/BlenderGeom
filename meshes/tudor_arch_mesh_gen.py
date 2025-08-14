@@ -55,7 +55,7 @@ class TudorArchMeshMaker(bpy.types.Operator):
     arch_offset: FloatProperty(
         name="Offset",
         description="Arch weight offset",
-        default=0.0,
+        default=1.0,
         step=1,
         precision=3,
         min=-1.0,
