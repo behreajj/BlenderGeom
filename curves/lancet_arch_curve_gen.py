@@ -1,0 +1,326 @@
+# Equilateral Pointed Arch
+# https://www.youtube.com/watch?v=4a9PtvawkYY&t=50s
+# https://www.youtube.com/watch?v=CNMXoPtRXOA
+#
+# Maybe make this a lancet arch and then use a factor
+# to lerp to an equilateral?
+# https://www.youtube.com/watch?v=4a9PtvawkYY&t=114s
+# https://www.youtube.com/watch?v=ugMILtBCMPo
+# https://en.wikipedia.org/wiki/Lancet_window
+# (0, 2.6457513110645903) is the y intercept for an arch
+# from (-1, 0) to (1, 0)
+# 2 * degrees(atan2(1 / 2.6457513110645903,1))
+# gives you the arc length
+# 41.40962210927086
+#
+# D ------ A --- C --- B ------ E
+#
+# If D to A, A to B and B to E are six units,
+# and C is midpoint of A to B, three units.
+# In equi arch, A and B are arch centers,
+# In lancet arch, D and E are arch centers.
+#
+# Circle circle intersection
+# to figure out peak with double precision:
+# https://gist.github.com/jupdike/bfe5eb23d1c395d8a0a1a4ddd94882ac
+# Maybe make a script entirely dedicated to this?
+
+import bpy # type: ignore
+import math
+from bpy.props import ( # type: ignore
+    FloatProperty,
+    FloatVectorProperty,
+    IntProperty)
+
+bl_info = {
+    "name": "Create Lancet Arch Curve",
+    "author": "Jeremy Behreandt",
+    "version": (0, 1),
+    "blender": (4, 4, 3),
+    "category": "Add Curve",
+    "description": "Creates a Bezier curve lancet arch.",
+    "tracker_url": "https://github.com/behreajj/blendergeom"
+}
+
+
+class LancetArchCurveMaker(bpy.types.Operator):
+    """Creates a Bezier lancet arch"""
+
+    bl_idname = "curve.primitive_lancet_add"
+    bl_label = "Lancet Arch"
+    bl_options = {"REGISTER", "UNDO"}
+
+    sharpness: FloatProperty(
+        name="Sharpness",
+        description="Arch sharpness, where 0 is equilateral and 1 is lancet",
+        default=1.0,
+        step=1,
+        precision=3,
+        min=0.0,
+        max=1.0,
+        subtype="FACTOR") # type: ignore
+
+    radius: FloatProperty(
+        name="Radius",
+        description="Arch radius",
+        min=0.0001,
+        soft_max=100.0,
+        step=1,
+        precision=3,
+        default=0.5) # type: ignore
+
+    arch_weight: FloatProperty(
+        name="Extrude",
+        description="Arch extrusion weight",
+        default=0.0,
+        step=1,
+        precision=3,
+        min=0.0,
+        max=1.0,
+        subtype="FACTOR") # type: ignore
+
+    arch_offset: FloatProperty(
+        name="Offset",
+        description="Arch weight offset",
+        default=0.0,
+        step=1,
+        precision=3,
+        min=-1.0,
+        max=1.0,
+        subtype="FACTOR") # type: ignore
+
+    origin: FloatVectorProperty(
+        name="Origin",
+        description="Arch origin",
+        default=(0.0, 0.0),
+        step=1,
+        precision=3,
+        size=2,
+        subtype="TRANSLATION") # type: ignore
+
+    res_u: IntProperty(
+        name="Resolution",
+        description="Resolution",
+        min=1,
+        soft_max=64,
+        default=24) # type: ignore
+
+    @staticmethod
+    def scale(v, s):
+        return (v[0] * s, v[1] * s, 0.0)
+
+    @staticmethod
+    def translate(v, t):
+        return (v[0] + t[0], v[1] + t[1], 0.0)
+
+    @staticmethod
+    def circ_intersect(
+        x_orig, y_orig, r_orig,
+        x_dest, y_dest, r_dest):
+        
+        x_delta = x_orig - x_dest
+        y_delta = y_orig - y_dest
+        r_delta = math.sqrt(x_delta ** 2 + y_delta ** 2)
+
+        if not (abs(r_orig - r_dest) <= r_delta and r_delta <= r_orig + r_dest):
+            return []
+
+        re2 = r_delta ** 2
+        re4 = r_delta ** 4
+        r1e2r2e2 = r_orig ** 2 - r_dest ** 2
+        a = r1e2r2e2 / (2 * re2)
+        c = math.sqrt(2 * (r_orig ** 2 + r_dest ** 2) / re2 - (r1e2r2e2 ** 2) / re4 - 1)
+
+        fx = (x_orig + x_dest) / 2 + a * (x_dest - x_orig)
+        gx = c * (y_dest - y_orig) / 2;
+        ix1 = fx + gx
+        ix2 = fx - gx
+
+        fy = (y_orig + y_dest) / 2 + a * (y_dest - y_orig)
+        gy = c * (x_orig - x_dest) / 2
+        iy1 = fy + gy
+        iy2 = fy - gy
+
+        return [
+            (ix1, iy1, 0.0),
+            (ix2, iy2, 0.0)]
+
+    @staticmethod
+    def circ_intersect_simplified(
+        x_orig,
+        x_dest,
+        r):
+        
+        x_delta = x_orig - x_dest
+        r_delta = math.sqrt(x_delta ** 2)
+
+        if not (abs(r - r) <= r_delta and r_delta <= r + r):
+            return []
+
+        re2 = r_delta ** 2
+        re4 = r_delta ** 4
+        r1e2r2e2 = r ** 2 - r ** 2
+        a = r1e2r2e2 / (2 * re2)
+        c = math.sqrt(2 * (r ** 2 + r ** 2) / re2 - (r1e2r2e2 ** 2) / re4 - 1)
+
+        fx = (x_orig + x_dest) / 2 + a * (x_dest - x_orig)
+        gx = c * (0 - 0) / 2;
+        ix1 = fx + gx
+        ix2 = fx - gx
+
+        gy = c * (x_orig - x_dest) / 2
+        iy1 = 0 + gy
+        iy2 = 0 - gy
+
+        return [
+            (ix1, iy1, 0.0),
+            (ix2, iy2, 0.0)]
+
+    def execute(self, context):
+        sharpness = min(max(self.sharpness, 0.0), 1.0)
+        arch_weight = min(max(self.arch_weight, 0.0), 1.0)
+        arch_offset = min(max(self.arch_offset, -1.0), 1.0)
+        radius_center = max(0.000001, self.radius)
+        origin = self.origin
+
+        equilateral_arc_radius = 2.0
+        equilateral_arc_x_offset = 1.0
+        lancet_arc_radius = 4.0
+        lancet_arc_x_offset = 3.0
+        arc_radius_norm = (1.0 - sharpness) * equilateral_arc_radius \
+            + sharpness * lancet_arc_radius
+        arc_x_offset = (1.0 - sharpness) * equilateral_arc_x_offset \
+            + sharpness * lancet_arc_x_offset
+
+        left_arc_origin = (-arc_x_offset, 0.0, 0.0)
+        right_arc_origin = (arc_x_offset, 0.0, 0.0)
+
+        intersections = LancetArchCurveMaker.circ_intersect_simplified(
+            -arc_x_offset,
+            +arc_x_offset,
+            arc_radius_norm)
+        y_intercept = intersections[1]
+        arc_len = 2.0 * math.atan(1.0 / y_intercept[1])
+
+        # For lancet: (0.0, 2.6457513110645903)
+        # intersection[1] is positive
+        # Arc length is 41.40962210927086
+        print(intersections[0])
+        print(intersections[1])
+        print(math.degrees(arc_len))
+
+        radius_inner = radius_center
+        radius_outer = radius_center
+        if arch_weight > 0.0:
+            radius_inner_limit = radius_center \
+                - radius_center * arch_weight
+            radius_outer_limit = radius_center \
+                + radius_center * arch_weight
+
+            arch_offset_01 = arch_offset * 0.5 + 0.5
+            radius_inner = arch_offset_01 * radius_center \
+                + (1.0 - arch_offset_01) * radius_inner_limit
+            radius_outer = (1.0 - arch_offset_01) * radius_center \
+                + arch_offset_01 * radius_outer_limit
+
+        use_extrude = arch_weight > 0.0 \
+            and radius_inner > 0.0
+        
+        crv_data = bpy.data.curves.new("Lancet Arch", "CURVE")
+        # If a curve is 2D, then transforms cannot be applied.
+        crv_data.dimensions = "3D"
+
+        crv_splines = crv_data.splines
+        spline = crv_splines.new("BEZIER")
+        spline.use_cyclic_u = use_extrude
+        spline.resolution_u = self.res_u
+
+        knot_count = 3
+        if use_extrude:
+            knot_count = 6
+
+        bz_pts = spline.bezier_points
+        bz_pts.add(knot_count - 1)
+
+        fudge = 0
+        if arc_len % (math.pi * 0.5) > 0.00001:
+            fudge = fudge + 1
+        knot_count = max(2, math.ceil(fudge + 4 * arc_len / math.tau))
+        to_step = 1.0 / (knot_count - 1.0)
+        handle_mag = math.tan(0.25 * to_step * arc_len) * arc_radius_norm * (4.0 / 3.0)
+        print(handle_mag)
+
+
+        if use_extrude:
+            pass
+        else:
+            knot_0 = bz_pts[0]
+            knot_1 = bz_pts[1]
+            knot_2 = bz_pts[2]
+
+            knot_0.handle_left_type = "FREE"
+            knot_0.handle_right_type = "FREE"
+            knot_0.co = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((1.0, 0.0, 0.0), radius_center),
+                    origin)
+            knot_0.handle_left = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((1.0, -handle_mag, 0.0), radius_center),
+                    origin)
+            knot_0.handle_right = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((1.0, handle_mag, 0.0), radius_center),
+                    origin)
+
+            knot_1.handle_left_type = "FREE"
+            knot_1.handle_right_type = "FREE"
+            knot_1.co = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((0.0, y_intercept[1], 0.0), radius_center),
+                    origin)
+            
+            cosa = math.cos(arc_len)
+            sina = math.sin(arc_len)
+            hm_cosa = handle_mag * cosa
+            hm_sina = handle_mag * sina
+            rh_x = hm_sina
+            rh_y = y_intercept[1] - hm_cosa
+
+            knot_1.handle_left = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((rh_x, rh_y, 0.0), radius_center),
+                    origin)
+            knot_1.handle_right = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((-rh_x, rh_y, 0.0), radius_center),
+                    origin)
+
+            knot_2.handle_left_type = "FREE"
+            knot_2.handle_right_type = "FREE"
+            knot_2.co = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((-1.0, 0.0, 0.0), radius_center),
+                    origin)
+            knot_2.handle_left = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((-1.0, handle_mag, 0.0), radius_center),
+                    origin)
+            knot_2.handle_right = LancetArchCurveMaker.translate(
+                    LancetArchCurveMaker.scale((-1.0, -handle_mag, 0.0), radius_center),
+                    origin)
+
+        crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
+        crv_obj.location = context.scene.cursor.location
+        context.collection.objects.link(crv_obj)
+
+        return {"FINISHED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.area.type == "VIEW_3D"
+
+def menu_func(self, context):
+    self.layout.operator(LancetArchCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
+
+
+def register():
+    bpy.utils.register_class(LancetArchCurveMaker)
+    bpy.types.VIEW3D_MT_curve_add.append(menu_func)
+
+
+def unregister():
+    bpy.utils.unregister_class(LancetArchCurveMaker)
+    bpy.types.VIEW3D_MT_curve_add.remove(menu_func)
