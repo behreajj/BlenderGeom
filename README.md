@@ -30,7 +30,7 @@ A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
 
 ![Lancet Arch](screenCaps/curves/curveLancetArch.png)
 
-A [Lancet arch](https://en.wikipedia.org/wiki/Lancet_window).
+A [lancet arch](https://en.wikipedia.org/wiki/Lancet_window).
 
 ![Line](screenCaps/curves/curveLine.png)
 
