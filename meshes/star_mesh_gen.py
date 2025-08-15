@@ -216,7 +216,25 @@ class StarMeshMaker(bpy.types.Operator):
             vs, vts, vns,
             fs, fs, fs)
 
-        mesh_data = bpy.data.meshes.new("Star")
+        mesh_name = "Star"
+        if not_valid:
+            if sectors == 3:
+                mesh_name = "Triangle"
+            elif sectors == 4:
+                mesh_name = "Square"
+            elif sectors == 5:
+                mesh_name = "Pentagon"
+            elif sectors == 6:
+                mesh_name = "Hexagon"
+            elif sectors == 7:
+                mesh_name = "Heptagon"
+            elif sectors == 8:
+                mesh_name = "Octagon"
+            elif sectors == 9:
+                mesh_name = "Enneagon"
+            else:
+                mesh_name = "Polygon"
+        mesh_data = bpy.data.meshes.new(mesh_name)
         bm.to_mesh(mesh_data)
         bm.free()
 

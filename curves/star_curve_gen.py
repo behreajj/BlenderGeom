@@ -129,7 +129,25 @@ class StarCurveMaker(bpy.types.Operator):
                 cos[j] = (x_center + r * math.cos(angle),
                           y_center + r * math.sin(angle), 0.0)
 
-        crv_data = bpy.data.curves.new("Star", "CURVE")
+        crv_name = "Star"
+        if not_valid:
+            if knot_count == 3:
+                crv_name = "Triangle"
+            elif knot_count == 4:
+                crv_name = "Square"
+            elif knot_count == 5:
+                crv_name = "Pentagon"
+            elif knot_count == 6:
+                crv_name = "Hexagon"
+            elif knot_count == 7:
+                crv_name = "Heptagon"
+            elif knot_count == 8:
+                crv_name = "Octagon"
+            elif knot_count == 9:
+                crv_name = "Enneagon"
+            else:
+                crv_name = "Polygon"
+        crv_data = bpy.data.curves.new(crv_name, "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
         crv_data.dimensions = "3D"
 
