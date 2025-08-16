@@ -92,7 +92,7 @@ class FoilCurveMaker(bpy.types.Operator):
 
         foil_count = max(3, self.foil_count)
         radius = max(0.000001, self.radius)
-        offset_angle = half_pi + self.offset_angle
+        offset_angle = self.offset_angle
         origin = self.origin
         res_u = self.res_u
 
@@ -100,35 +100,57 @@ class FoilCurveMaker(bpy.types.Operator):
         foliate_pi_ratio = math.pi / foil_count
         sin_foliate_ratio = math.sin(foliate_pi_ratio)
 
-        # trefoil: 300deg = (360 - 60 * 1)
-        # quatrefroil: 270deg = (360 - 45 * 2)
-        # cinquefoil: 252deg = (360 - 36 * 3)
-        # hexafoil: 240deg = (360 - 30 * 4)
+        # trefoil:    300 = (360 - 60 * 1)
+        # quatrefoil: 270 = (360 - 45 * 2)
+        # cinquefoil: 252 = (360 - 36 * 3)
+        # hexafoil:   240 = (360 - 30 * 4)
         foliate_arc_len = math.tau - foliate_pi_ratio * (foil_count - 2)
         half_arc_len = foliate_arc_len * 0.5
 
-        # trefoil: 1 / (1 + sin(60)) = 0.536
+        # Add one to account for unit radius of base polygon.
+        # trefoil:    1 / (1 + sin(60)) = 0.536
         # quatrefoil: 1 / (1 + sin(45)) = 0.586
         # cinquefoil: 1 / (1 + sin(36)) = 0.629
-        # hexafoil: 1 / (1 + sin(30)) = 0.667
+        # hexafoil:   1 / (1 + sin(30)) = 0.667
         to_unit_square = radius * 1.0 / (1.0 + sin_foliate_ratio)
 
-        # trefoil: sin(180 / 3) = sin(60) = 0.866
+        # If you didn't normalize, this would just be sin foliate ratio.
+        # trefoil:    sin(180 / 3) = sin(60) = 0.866
         # quatrefoil: sin(180 / 4) = sin(45) = 0.707
         # cinquefoil: sin(180 / 5) = sin(36) = 0.588
-        # hexafoil: sin(180 / 6) = sin(30) = 0.5
+        # hexafoil:   sin(180 / 6) = sin(30) = 0.5
         foliate_radius = sin_foliate_ratio * to_unit_square
 
-        # trefoil: 5 (12 total) 5 per * 3 sides - 3
+        # trefoil:    5 (12 total) 5 per * 3 sides - 3
         # quatrefoil: 4 (12 total) 4 per * 4 sides - 4
         # cinquefoil: 4 (15 total) 4 per * 5 sides - 5
-        # hexafoil: 4 (18 total) 4 per * 6 sides - 6
+        # hexafoil:   4 (18 total) 4 per * 6 sides - 6
         fudge = 0
         if foliate_arc_len % half_pi > 0.00001:
             fudge = fudge + 1
         foliate_knot_count = max(2, math.ceil(fudge + 4 * foliate_arc_len / math.tau))
-        total_knot_count = foliate_knot_count * foil_count - foil_count
+        total_knot_count = foliate_knot_count * foil_count - (foil_count)
+        j_to_step = 1.0 / (foliate_knot_count - 1.0)
+        handle_mag = math.tan(0.25 * j_to_step * foliate_arc_len) * foliate_radius * (4.0 / 3.0)
 
+        foil_name = "Foil"
+        if foil_count == 3:
+            foil_name = "Trefoil"
+        elif foil_count == 4:
+            foil_name = "Quatrefoil"
+        elif foil_count == 5:
+            foil_name = "Cinquefoil"
+
+        crv_data = bpy.data.curves.new(foil_name, "CURVE")
+        crv_data.dimensions = "3D"
+        crv_splines = crv_data.splines
+        spline = crv_splines.new("BEZIER")
+        spline.resolution_u = res_u
+        spline.use_cyclic_u = True
+        bz_pts = spline.bezier_points
+        bz_pts.add(total_knot_count - 1)
+
+        k = 0
         i = 0
         while i < foil_count:
             theta_polygon = offset_angle + i * to_theta_polygon
@@ -138,7 +160,61 @@ class FoilCurveMaker(bpy.types.Operator):
             start_angle = theta_polygon - half_arc_len
             stop_angle = theta_polygon + half_arc_len
 
+            cosa = math.cos(start_angle)
+            sina = math.sin(start_angle)
+            hm_cosa = handle_mag * cosa
+            hm_sina = handle_mag * sina
+
+            co_x = x_polygon + foliate_radius * cosa
+            co_y = y_polygon + foliate_radius * sina
+
+            first_co = (co_x, co_y, 0.0)
+            first_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
+            first_fh = (co_x - hm_sina, co_y + hm_cosa, 0.0)
+
+            first_knot = bz_pts[k % total_knot_count]
+            first_knot.handle_left_type = "FREE"
+            first_knot.handle_right_type = "FREE"
+            first_knot.co = first_co
+            first_knot.handle_left = first_rh
+            first_knot.handle_right = first_fh
+
+            j = 1
+            while j < foliate_knot_count:
+                j_step = j * j_to_step
+                knot_angle = (1.0 - j_step) * start_angle \
+                    + j_step * stop_angle
+
+                cosa = math.cos(knot_angle)
+                sina = math.sin(knot_angle)
+                hm_cosa = handle_mag * cosa
+                hm_sina = handle_mag * sina
+
+                co_x = x_polygon + foliate_radius * cosa
+                co_y = y_polygon + foliate_radius * sina
+
+                curr_co = (co_x, co_y, 0.0)
+                curr_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
+                curr_fh = (co_x - hm_sina, co_y + hm_cosa, 0.0)
+
+                curr_knot = bz_pts[k % total_knot_count]
+                curr_knot.handle_left_type = "FREE"
+                curr_knot.handle_right_type = "FREE"
+                curr_knot.co = curr_co
+                curr_knot.handle_left = curr_rh
+                if j < foliate_knot_count - 1:
+                    curr_knot.handle_right = curr_fh
+                else:
+                    curr_knot.handle_right = curr_rh
+
+                j = j + 1
+                k = k + 1
+
             i = i + 1
+
+        crv_obj = bpy.data.objects.new(crv_data.name, crv_data)
+        crv_obj.location = context.scene.cursor.location
+        context.collection.objects.link(crv_obj)
 
         return {"FINISHED"}
 
