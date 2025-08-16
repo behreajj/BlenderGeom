@@ -21,13 +21,6 @@
 # Make overlap a factor where 0 is n circles overlapped in center and 1
 # is perfect osculation of tangents
 
-#
-# Bezier knots per foil:
-# trefoil: 5 (12 total)
-# quatrefoil: 4 (12 total)
-# cinquefoil: 4 (15 total)
-# hexafoil: 4 (18 total)
-
 import bpy # type: ignore
 import math
 from bpy.props import ( # type: ignore
@@ -56,7 +49,7 @@ class FoilCurveMaker(bpy.types.Operator):
         name="Resolution",
         description="Resolution",
         min=3,
-        max=5,
+        max=32,
         default=3) # type: ignore
 
     radius: FloatProperty(
@@ -95,9 +88,11 @@ class FoilCurveMaker(bpy.types.Operator):
         default=24) # type: ignore
 
     def execute(self, context):
+        half_pi = math.pi * 0.5
+
         foil_count = max(3, self.foil_count)
         radius = max(0.000001, self.radius)
-        offset_angle = math.pi * 0.5 + self.offset_angle
+        offset_angle = half_pi + self.offset_angle
         origin = self.origin
         res_u = self.res_u
 
@@ -105,29 +100,43 @@ class FoilCurveMaker(bpy.types.Operator):
         foliate_pi_ratio = math.pi / foil_count
         sin_foliate_ratio = math.sin(foliate_pi_ratio)
 
-        # trefoil: 300deg (360 - 60 * 1)
-        # quatrefroil: 270deg (360 - 45 * 2)
-        # cinquefoil: 252deg (360 - 36 * 3)
-        # hexafoil: 240deg (360 - 30 * 4)
-        foliate_arc_length = math.tau - foliate_pi_ratio * (foil_count - 2)
+        # trefoil: 300deg = (360 - 60 * 1)
+        # quatrefroil: 270deg = (360 - 45 * 2)
+        # cinquefoil: 252deg = (360 - 36 * 3)
+        # hexafoil: 240deg = (360 - 30 * 4)
+        foliate_arc_len = math.tau - foliate_pi_ratio * (foil_count - 2)
+        half_arc_len = foliate_arc_len * 0.5
 
         # trefoil: 1 / (1 + sin(60)) = 0.536
         # quatrefoil: 1 / (1 + sin(45)) = 0.586
         # cinquefoil: 1 / (1 + sin(36)) = 0.629
-        # hexafoil: 1 / (1 + sin(30)) = 0.6667
+        # hexafoil: 1 / (1 + sin(30)) = 0.667
         to_unit_square = radius * 1.0 / (1.0 + sin_foliate_ratio)
 
-        # trefoil: sin(180deg / 3) = sin(60) = 0.866
-        # quatrefoil: sin(180deg / 4) = sin(45) = 0.707
-        # cinquefoil: sin(180deg / 5) = sin(36) = 0.588
-        # hexafoil: sin(180deg / 6) = sin(30) = 0.5
+        # trefoil: sin(180 / 3) = sin(60) = 0.866
+        # quatrefoil: sin(180 / 4) = sin(45) = 0.707
+        # cinquefoil: sin(180 / 5) = sin(36) = 0.588
+        # hexafoil: sin(180 / 6) = sin(30) = 0.5
         foliate_radius = sin_foliate_ratio * to_unit_square
+
+        # trefoil: 5 (12 total) 5 per * 3 sides - 3
+        # quatrefoil: 4 (12 total) 4 per * 4 sides - 4
+        # cinquefoil: 4 (15 total) 4 per * 5 sides - 5
+        # hexafoil: 4 (18 total) 4 per * 6 sides - 6
+        fudge = 0
+        if foliate_arc_len % half_pi > 0.00001:
+            fudge = fudge + 1
+        foliate_knot_count = max(2, math.ceil(fudge + 4 * foliate_arc_len / math.tau))
+        total_knot_count = foliate_knot_count * foil_count - foil_count
 
         i = 0
         while i < foil_count:
             theta_polygon = offset_angle + i * to_theta_polygon
             x_polygon = origin[0] + to_unit_square * math.cos(theta_polygon)
             y_polygon = origin[1] + to_unit_square * math.sin(theta_polygon)
+
+            start_angle = theta_polygon - half_arc_len
+            stop_angle = theta_polygon + half_arc_len
 
             i = i + 1
 
