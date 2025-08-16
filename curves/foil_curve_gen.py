@@ -20,22 +20,13 @@
 #
 # Make overlap a factor where 0 is n circles overlapped in center and 1
 # is perfect osculation of tangents
-#
-# Radius of each foil is sin(180deg / sides)
-# trefoil: sin(180deg / 3) = sqrt(3) / 2 = 0.866
-# quatrefoil: sin(180deg / 4) = sqrt(2) / 2 = 0.7071
-# cinquefoil: sin(180deg / 5) = 0.588
-#
-# Arc Lengths of each foil
-# trefoil: 300deg
-# quatrefroil: 270deg
-# cinquefoil: 252deg
+
 #
 # Bezier knots per foil:
 # trefoil: 5 (12 total)
 # quatrefoil: 4 (12 total)
 # cinquefoil: 4 (15 total)
-
+# hexafoil: 4 (18 total)
 
 import bpy # type: ignore
 import math
@@ -102,3 +93,59 @@ class FoilCurveMaker(bpy.types.Operator):
         min=1,
         soft_max=64,
         default=24) # type: ignore
+
+    def execute(self, context):
+        foil_count = max(3, self.foil_count)
+        radius = max(0.000001, self.radius)
+        offset_angle = math.pi * 0.5 + self.offset_angle
+        origin = self.origin
+        res_u = self.res_u
+
+        to_theta_polygon = math.tau / foil_count
+        foliate_pi_ratio = math.pi / foil_count
+        sin_foliate_ratio = math.sin(foliate_pi_ratio)
+
+        # trefoil: 300deg (360 - 60 * 1)
+        # quatrefroil: 270deg (360 - 45 * 2)
+        # cinquefoil: 252deg (360 - 36 * 3)
+        # hexafoil: 240deg (360 - 30 * 4)
+        foliate_arc_length = math.tau - foliate_pi_ratio * (foil_count - 2)
+
+        # trefoil: 1 / (1 + sin(60)) = 0.536
+        # quatrefoil: 1 / (1 + sin(45)) = 0.586
+        # cinquefoil: 1 / (1 + sin(36)) = 0.629
+        # hexafoil: 1 / (1 + sin(30)) = 0.6667
+        to_unit_square = radius * 1.0 / (1.0 + sin_foliate_ratio)
+
+        # trefoil: sin(180deg / 3) = sin(60) = 0.866
+        # quatrefoil: sin(180deg / 4) = sin(45) = 0.707
+        # cinquefoil: sin(180deg / 5) = sin(36) = 0.588
+        # hexafoil: sin(180deg / 6) = sin(30) = 0.5
+        foliate_radius = sin_foliate_ratio * to_unit_square
+
+        i = 0
+        while i < foil_count:
+            theta_polygon = offset_angle + i * to_theta_polygon
+            x_polygon = origin[0] + to_unit_square * math.cos(theta_polygon)
+            y_polygon = origin[1] + to_unit_square * math.sin(theta_polygon)
+
+            i = i + 1
+
+        return {"FINISHED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.area.type == "VIEW_3D"
+
+def menu_func(self, context):
+    self.layout.operator(FoilCurveMaker.bl_idname, icon="CURVE_BEZCURVE")
+
+
+def register():
+    bpy.utils.register_class(FoilCurveMaker)
+    bpy.types.VIEW3D_MT_curve_add.append(menu_func)
+
+
+def unregister():
+    bpy.utils.unregister_class(FoilCurveMaker)
+    bpy.types.VIEW3D_MT_curve_add.remove(menu_func)
