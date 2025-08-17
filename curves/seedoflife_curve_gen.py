@@ -88,6 +88,8 @@ class SeedCurveMaker(bpy.types.Operator):
         crv_obj.location = context.scene.cursor.location
         context.collection.objects.link(crv_obj)
 
+        # TODO: Create separate, detachable pieces
+        # instead of overlapping circles.
         hex_cos = [
             (0.8660254037844386, 0.5, 0.0),
             (0.0, 1.0, 0.0),

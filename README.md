@@ -22,7 +22,7 @@ An egg.
 
 ![Foil](screenCaps/curves/curveFoil.png)
 
-A [foil](https://en.wikipedia.org/wiki/Foil_(architecture)), encompassing [trefoil](https://en.wikipedia.org/wiki/Trefoil) and [quatrefoil](https://en.wikipedia.org/wiki/Quatrefoil).
+A [foil](https://en.wikipedia.org/wiki/Foil_(architecture)), including [trefoil](https://en.wikipedia.org/wiki/Trefoil) and [quatrefoil](https://en.wikipedia.org/wiki/Quatrefoil).
 
 ![Infinity Loop](screenCaps/curves/infinityLoop.png)
 
