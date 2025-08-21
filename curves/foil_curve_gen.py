@@ -194,7 +194,7 @@ class FoilCurveMaker(bpy.types.Operator):
                 i4 = i * 4
 
                 corner_knot = bz_pts[i4 % total_knot_count]
-                corner_knot.handle_right_type = "FREE" # "VECTOR"
+                corner_knot.handle_right_type = "VECTOR"
                 corner_knot.co = (
                     origin[0] + to_unit_square * x_curr,
                     origin[1] + to_unit_square * y_curr, 0.0)
@@ -203,7 +203,7 @@ class FoilCurveMaker(bpy.types.Operator):
                     origin[1] + to_unit_square * (two_thirds * y_curr + one_third * y_barb_start), 0.0)
 
                 barb1_knot = bz_pts[(i4 + 1) % total_knot_count]
-                barb1_knot.handle_left_type = "FREE" # "VECTOR"
+                barb1_knot.handle_left_type = "VECTOR"
                 barb1_knot.handle_right_type = "FREE"
                 barb1_knot.co = (
                     origin[0] + to_unit_square * x_barb_start,
@@ -230,7 +230,7 @@ class FoilCurveMaker(bpy.types.Operator):
 
                 barb2_knot = bz_pts[(i4 + 3) % total_knot_count]
                 barb2_knot.handle_left_type = "FREE"
-                barb2_knot.handle_right_type = "FREE" # VECTOR
+                barb2_knot.handle_right_type = "VECTOR"
                 barb2_knot.co = (
                     origin[0] + to_unit_square * x_barb_end,
                     origin[1] + to_unit_square * y_barb_end, 0.0)
@@ -242,7 +242,7 @@ class FoilCurveMaker(bpy.types.Operator):
                     origin[1] + to_unit_square * (two_thirds * y_barb_end + one_third * y_next), 0.0)
 
                 next_corner_knot = bz_pts[(i4 + 4) % total_knot_count]
-                next_corner_knot.handle_left_type = "FREE" # "VECTOR"
+                next_corner_knot.handle_left_type = "VECTOR"
                 next_corner_knot.handle_left = (
                     origin[0] + to_unit_square * (two_thirds * x_next + one_third * x_barb_end),
                     origin[1] + to_unit_square * (two_thirds * y_next + one_third * y_barb_end), 0.0)
