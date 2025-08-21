@@ -112,6 +112,13 @@ class FoilCurveMaker(bpy.types.Operator):
             foil_name = "Quatrefoil"
         elif foil_count == 5:
             foil_name = "Cinquefoil"
+        elif foil_count == 6:
+            foil_name = "Hexafoil"
+
+        if foil_type == "BARBED":
+            foil_name = foil_name + ".Barbed"
+        elif foil_type == "OVERLAP":
+            foil_name = foil_name + ".Overlap"
 
         crv_data = bpy.data.curves.new(foil_name, "CURVE")
         crv_data.dimensions = "3D"
