@@ -17,9 +17,6 @@
 # Cinquefoil
 # https://www.youtube.com/watch?v=-4gfkwa-zE8
 # https://www.youtube.com/watch?v=zxw2AxeTbn0
-#
-# Make overlap a factor where 0 is n circles overlapped in center and 1
-# is perfect osculation of tangents
 
 import bpy # type: ignore
 import math
@@ -48,8 +45,9 @@ class FoilCurveMaker(bpy.types.Operator):
 
     foil_type: EnumProperty(
         items=[
-            ("OVERLAP", "Overlap", "Overlap", 1),
-            ("REGULAR", "Regular", "Regular", 2),],
+            ("BARBED", "Barbed", "Barbed", 1),
+            ("OVERLAP", "Overlap", "Overlap", 2),
+            ("REGULAR", "Regular", "Regular", 3),],
         name="Foil Type",
         default="REGULAR",
         description="Foil type to create") # type: ignore
@@ -98,6 +96,7 @@ class FoilCurveMaker(bpy.types.Operator):
 
     def execute(self, context):
         half_pi = math.pi * 0.5
+        kappa = 0.5522847498307936
 
         foil_type = self.foil_type
         foil_count = max(3, self.foil_count)
@@ -125,7 +124,124 @@ class FoilCurveMaker(bpy.types.Operator):
         to_theta_polygon = math.tau / foil_count
         foliate_pi_ratio = math.pi / foil_count
 
-        if foil_type == "OVERLAP":
+        if foil_type == "BARBED":
+            # TODO: Similar to how you created rounded endcaps for a stroke in
+            # Aseprite, you can use kappa and 2d CCW, CW perpendiculars to
+            # find the foliate arcs.
+
+            # Arc length is always 180 degrees, 3 knots per arc
+            # plus 1 for the barb times number of vertices.
+            foliate_knot_count = 4
+            total_knot_count = foil_count * foliate_knot_count
+
+            # trefoil:    1 / (cos(pi / 3) + 2 * sin(pi / 3) / 3) = 0.9282032302755092
+            # quatrefoil: 1 / (cos(pi / 4) + 2 * sin(pi / 4) / 3) = 0.848528137423857
+            # cinquefoil: 1 / (cos(pi / 5) + 2 * sin(pi / 5) / 3) = 0.8327269490381908
+            # hexafoil:   1 / (cos(pi / 6) + 2 * sin(pi / 6) / 3) = 0.8337788928799909
+            # where division by three is the arbitrary scalar of the bulb to
+            # the side length
+            foliate_to_side_len = 1.0 / 3.0
+            side_len = 2 * radius * math.sin(foliate_pi_ratio)
+            in_radius = radius * math.cos(foliate_pi_ratio)
+            foliate_radius = (foliate_to_side_len * side_len)
+            kappa_radius = foliate_radius * kappa
+            one_third = 1.0 / 3.0
+            two_thirds = 2.0 / 3.0
+
+            # to_unit_square = 1.0 / (in_radius + side_len)
+            to_unit_square = 1.0
+            fr_scaled = to_unit_square * foliate_radius
+            kr_scaled = to_unit_square * kappa_radius
+            poly_scaled = to_unit_square * radius
+
+            # In barbed foil, the polygon is upside down
+            off_angle_p_pi = offset_angle + math.pi
+
+            bz_pts.add(total_knot_count - 1)
+
+            i = 0
+            while i < foil_count:
+                i_next = (i + 1) % foil_count
+
+                theta_curr = off_angle_p_pi + i * to_theta_polygon
+                x_curr = origin[0] + poly_scaled * math.cos(theta_curr)
+                y_curr = origin[1] + poly_scaled * math.sin(theta_curr)
+
+                theta_next = off_angle_p_pi + i_next * to_theta_polygon
+                x_next = origin[0] + poly_scaled * math.cos(theta_next)
+                y_next = origin[1] + poly_scaled * math.sin(theta_next)
+
+                x_foliate_orig = (x_curr + x_next) * 0.5
+                y_foliate_orig = (y_curr + y_next) * 0.5
+
+                # Normalized direction.
+                x_vec = (x_next - x_curr)
+                y_vec = (y_next - y_curr)
+                mag = math.sqrt(x_vec * x_vec + y_vec * y_vec)
+                x_vec = x_vec / mag
+                y_vec = y_vec / mag
+
+                x_barb_start = x_foliate_orig - x_vec * fr_scaled
+                y_barb_start = y_foliate_orig - y_vec * fr_scaled
+
+                x_barb_end = x_foliate_orig + x_vec * fr_scaled
+                y_barb_end = y_foliate_orig + y_vec * fr_scaled
+
+                x_perp_cw = y_vec
+                y_perp_cw = -x_vec
+                x_foliate_apex = x_foliate_orig + x_perp_cw * fr_scaled
+                y_foliate_apex = y_foliate_orig + y_perp_cw * fr_scaled
+
+                i4 = i * 4
+
+                corner_knot = bz_pts[i4 % total_knot_count]
+                corner_knot.handle_right_type = "FREE" # "VECTOR"
+                corner_knot.co = (x_curr, y_curr, 0.0)
+                corner_knot.handle_right = (
+                    two_thirds * x_curr + one_third * x_barb_start,
+                    two_thirds * y_curr + one_third * y_barb_start, 0.0)
+
+                barb1_knot = bz_pts[(i4 + 1) % total_knot_count]
+                barb1_knot.handle_left_type = "FREE" # "VECTOR"
+                barb1_knot.handle_right_type = "FREE"
+                barb1_knot.co = (x_barb_start, y_barb_start, 0.0)
+                barb1_knot.handle_left = (
+                    two_thirds * x_barb_start + one_third * x_curr,
+                    two_thirds * y_barb_start + one_third * y_curr, 0.0)
+                barb1_knot.handle_right = (
+                    x_barb_start + x_perp_cw * kr_scaled,
+                    y_barb_start + y_perp_cw * kr_scaled, 0.0)
+
+                apex_knot = bz_pts[(i4 + 2) % total_knot_count]
+                apex_knot.handle_left_type = "FREE"
+                apex_knot.handle_right_type = "FREE"
+                apex_knot.co = (x_foliate_apex, y_foliate_apex, 0.0)
+                apex_knot.handle_left = (
+                    x_foliate_apex - x_vec * kr_scaled,
+                    y_foliate_apex - y_vec * kr_scaled, 0.0)
+                apex_knot.handle_right = (
+                    x_foliate_apex + x_vec * kr_scaled,
+                    y_foliate_apex + y_vec * kr_scaled, 0.0)
+
+                barb2_knot = bz_pts[(i4 + 3) % total_knot_count]
+                barb2_knot.handle_left_type = "FREE"
+                barb2_knot.handle_right_type = "FREE" # VECTOR
+                barb2_knot.co = (x_barb_end, y_barb_end, 0.0)
+                barb2_knot.handle_left = (
+                    x_barb_end + x_perp_cw * kr_scaled,
+                    y_barb_end + y_perp_cw * kr_scaled, 0.0)
+                barb2_knot.handle_right = (
+                    two_thirds * x_barb_end + one_third * x_next,
+                    two_thirds * y_barb_end + one_third * y_next, 0.0)
+
+                next_corner_knot = bz_pts[(i4 + 4) % total_knot_count]
+                next_corner_knot.handle_left_type = "FREE" # "VECTOR"
+                next_corner_knot.handle_left = (
+                    two_thirds * x_next + one_third * x_barb_end,
+                    two_thirds * y_next + one_third * y_barb_end, 0.0)
+
+                i = i + 1
+        elif foil_type == "OVERLAP":
             # trefoil:    240 = 60 * 4
             # quatrefoil: 180 = 45 * 4
             # cinquefoil: 144 = 36 * 4
@@ -156,20 +272,20 @@ class FoilCurveMaker(bpy.types.Operator):
             k = 0
             i = 0
             while i < foil_count:
-                theta_polygon = offset_angle + i * to_theta_polygon
-                x_polygon = origin[0] + half_radius * math.cos(theta_polygon)
-                y_polygon = origin[1] + half_radius * math.sin(theta_polygon)
+                theta_curr = offset_angle + i * to_theta_polygon
+                x_curr = origin[0] + half_radius * math.cos(theta_curr)
+                y_curr = origin[1] + half_radius * math.sin(theta_curr)
 
-                start_angle = theta_polygon - half_arc_len
-                stop_angle = theta_polygon + half_arc_len
+                start_angle = theta_curr - half_arc_len
+                stop_angle = theta_curr + half_arc_len
 
                 cosa = math.cos(start_angle)
                 sina = math.sin(start_angle)
                 hm_cosa = handle_mag * cosa
                 hm_sina = handle_mag * sina
 
-                co_x = x_polygon + half_radius * cosa
-                co_y = y_polygon + half_radius * sina
+                co_x = x_curr + half_radius * cosa
+                co_y = y_curr + half_radius * sina
 
                 first_co = (co_x, co_y, 0.0)
                 first_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
@@ -182,9 +298,9 @@ class FoilCurveMaker(bpy.types.Operator):
                 first_knot.handle_left = first_rh
                 first_knot.handle_right = first_fh
 
-                j = 1
-                while j < foliate_knot_count:
-                    j_step = j * j_to_step
+                i_next = 1
+                while i_next < foliate_knot_count:
+                    j_step = i_next * j_to_step
                     knot_angle = (1.0 - j_step) * start_angle \
                         + j_step * stop_angle
 
@@ -193,28 +309,28 @@ class FoilCurveMaker(bpy.types.Operator):
                     hm_cosa = handle_mag * cosa
                     hm_sina = handle_mag * sina
 
-                    co_x = x_polygon + half_radius * cosa
-                    co_y = y_polygon + half_radius * sina
+                    co_x = x_curr + half_radius * cosa
+                    co_y = y_curr + half_radius * sina
 
                     curr_co = (co_x, co_y, 0.0)
                     curr_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
                     curr_fh = (co_x - hm_sina, co_y + hm_cosa, 0.0)
 
-                    curr_knot = bz_pts[k % total_knot_count]
-                    curr_knot.handle_left_type = "FREE"
-                    curr_knot.handle_right_type = "FREE"
-                    curr_knot.co = curr_co
-                    curr_knot.handle_left = curr_rh
+                    corner_knot = bz_pts[k % total_knot_count]
+                    corner_knot.handle_left_type = "FREE"
+                    corner_knot.handle_right_type = "FREE"
+                    corner_knot.co = curr_co
+                    corner_knot.handle_left = curr_rh
 
-                    if j < foliate_knot_count - 1:
-                        curr_knot.handle_right = curr_fh
+                    if i_next < foliate_knot_count - 1:
+                        corner_knot.handle_right = curr_fh
                     else:
-                        curr_knot.handle_right = (
+                        corner_knot.handle_right = (
                             co_x + cos_half_arc_len * (curr_fh[0] - co_x) - sin_half_arc_len * (curr_fh[1] - co_y),
                             co_y + cos_half_arc_len * (curr_fh[1] - co_y) + sin_half_arc_len * (curr_fh[0] - co_x),
                             0.0)
 
-                    j = j + 1
+                    i_next = i_next + 1
                     k = k + 1
                 i = i + 1
         else:
@@ -258,20 +374,20 @@ class FoilCurveMaker(bpy.types.Operator):
             k = 0
             i = 0
             while i < foil_count:
-                theta_polygon = offset_angle + i * to_theta_polygon
-                x_polygon = origin[0] + to_unit_square * math.cos(theta_polygon)
-                y_polygon = origin[1] + to_unit_square * math.sin(theta_polygon)
+                theta_curr = offset_angle + i * to_theta_polygon
+                x_curr = origin[0] + to_unit_square * math.cos(theta_curr)
+                y_curr = origin[1] + to_unit_square * math.sin(theta_curr)
 
-                start_angle = theta_polygon - half_arc_len
-                stop_angle = theta_polygon + half_arc_len
+                start_angle = theta_curr - half_arc_len
+                stop_angle = theta_curr + half_arc_len
 
                 cosa = math.cos(start_angle)
                 sina = math.sin(start_angle)
                 hm_cosa = handle_mag * cosa
                 hm_sina = handle_mag * sina
 
-                co_x = x_polygon + half_radius * cosa
-                co_y = y_polygon + half_radius * sina
+                co_x = x_curr + half_radius * cosa
+                co_y = y_curr + half_radius * sina
 
                 first_co = (co_x, co_y, 0.0)
                 first_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
@@ -284,9 +400,9 @@ class FoilCurveMaker(bpy.types.Operator):
                 first_knot.handle_left = first_rh
                 first_knot.handle_right = first_fh
 
-                j = 1
-                while j < foliate_knot_count:
-                    j_step = j * j_to_step
+                i_next = 1
+                while i_next < foliate_knot_count:
+                    j_step = i_next * j_to_step
                     knot_angle = (1.0 - j_step) * start_angle \
                         + j_step * stop_angle
 
@@ -295,24 +411,24 @@ class FoilCurveMaker(bpy.types.Operator):
                     hm_cosa = handle_mag * cosa
                     hm_sina = handle_mag * sina
 
-                    co_x = x_polygon + half_radius * cosa
-                    co_y = y_polygon + half_radius * sina
+                    co_x = x_curr + half_radius * cosa
+                    co_y = y_curr + half_radius * sina
 
                     curr_co = (co_x, co_y, 0.0)
                     curr_rh = (co_x + hm_sina, co_y - hm_cosa, 0.0)
                     curr_fh = (co_x - hm_sina, co_y + hm_cosa, 0.0)
 
-                    curr_knot = bz_pts[k % total_knot_count]
-                    curr_knot.handle_left_type = "FREE"
-                    curr_knot.handle_right_type = "FREE"
-                    curr_knot.co = curr_co
-                    curr_knot.handle_left = curr_rh
-                    if j < foliate_knot_count - 1:
-                        curr_knot.handle_right = curr_fh
+                    corner_knot = bz_pts[k % total_knot_count]
+                    corner_knot.handle_left_type = "FREE"
+                    corner_knot.handle_right_type = "FREE"
+                    corner_knot.co = curr_co
+                    corner_knot.handle_left = curr_rh
+                    if i_next < foliate_knot_count - 1:
+                        corner_knot.handle_right = curr_fh
                     else:
-                        curr_knot.handle_right = curr_rh
+                        corner_knot.handle_right = curr_rh
 
-                    j = j + 1
+                    i_next = i_next + 1
                     k = k + 1
 
                 i = i + 1

@@ -73,6 +73,9 @@ class ReuleauxCurveMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], 0.0)
 
     def execute(self, context):
+        # TODO: Generalize to a Reuleaux polygon:
+        # https://en.wikipedia.org/wiki/Reuleaux_polygon
+
         radius = max(0.000001, self.radius)
         offset_angle = self.offset_angle
         origin = self.origin
