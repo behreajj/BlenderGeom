@@ -125,10 +125,6 @@ class FoilCurveMaker(bpy.types.Operator):
         foliate_pi_ratio = math.pi / foil_count
 
         if foil_type == "BARBED":
-            # TODO: Similar to how you created rounded endcaps for a stroke in
-            # Aseprite, you can use kappa and 2d CCW, CW perpendiculars to
-            # find the foliate arcs.
-
             # Arc length is always 180 degrees, 3 knots per arc
             # plus 1 for the barb times number of vertices.
             foliate_knot_count = 4
@@ -148,11 +144,7 @@ class FoilCurveMaker(bpy.types.Operator):
             one_third = 1.0 / 3.0
             two_thirds = 2.0 / 3.0
 
-            # to_unit_square = 1.0 / (in_radius + side_len)
-            to_unit_square = 1.0
-            fr_scaled = to_unit_square * foliate_radius
-            kr_scaled = to_unit_square * kappa_radius
-            poly_scaled = to_unit_square * radius
+            to_unit_square = radius / (in_radius + side_len * foliate_to_side_len)
 
             # In barbed foil, the polygon is upside down
             off_angle_p_pi = offset_angle + math.pi
@@ -164,12 +156,12 @@ class FoilCurveMaker(bpy.types.Operator):
                 i_next = (i + 1) % foil_count
 
                 theta_curr = off_angle_p_pi + i * to_theta_polygon
-                x_curr = origin[0] + poly_scaled * math.cos(theta_curr)
-                y_curr = origin[1] + poly_scaled * math.sin(theta_curr)
+                x_curr = radius * math.cos(theta_curr)
+                y_curr = radius * math.sin(theta_curr)
 
                 theta_next = off_angle_p_pi + i_next * to_theta_polygon
-                x_next = origin[0] + poly_scaled * math.cos(theta_next)
-                y_next = origin[1] + poly_scaled * math.sin(theta_next)
+                x_next = radius * math.cos(theta_next)
+                y_next = radius * math.sin(theta_next)
 
                 x_foliate_orig = (x_curr + x_next) * 0.5
                 y_foliate_orig = (y_curr + y_next) * 0.5
@@ -181,64 +173,72 @@ class FoilCurveMaker(bpy.types.Operator):
                 x_vec = x_vec / mag
                 y_vec = y_vec / mag
 
-                x_barb_start = x_foliate_orig - x_vec * fr_scaled
-                y_barb_start = y_foliate_orig - y_vec * fr_scaled
+                x_barb_start = x_foliate_orig - x_vec * foliate_radius
+                y_barb_start = y_foliate_orig - y_vec * foliate_radius
 
-                x_barb_end = x_foliate_orig + x_vec * fr_scaled
-                y_barb_end = y_foliate_orig + y_vec * fr_scaled
+                x_barb_end = x_foliate_orig + x_vec * foliate_radius
+                y_barb_end = y_foliate_orig + y_vec * foliate_radius
 
                 x_perp_cw = y_vec
                 y_perp_cw = -x_vec
-                x_foliate_apex = x_foliate_orig + x_perp_cw * fr_scaled
-                y_foliate_apex = y_foliate_orig + y_perp_cw * fr_scaled
+                x_foliate_apex = x_foliate_orig + x_perp_cw * foliate_radius
+                y_foliate_apex = y_foliate_orig + y_perp_cw * foliate_radius
 
                 i4 = i * 4
 
                 corner_knot = bz_pts[i4 % total_knot_count]
                 corner_knot.handle_right_type = "FREE" # "VECTOR"
-                corner_knot.co = (x_curr, y_curr, 0.0)
+                corner_knot.co = (
+                    origin[0] + to_unit_square * x_curr,
+                    origin[1] + to_unit_square * y_curr, 0.0)
                 corner_knot.handle_right = (
-                    two_thirds * x_curr + one_third * x_barb_start,
-                    two_thirds * y_curr + one_third * y_barb_start, 0.0)
+                    origin[0] + to_unit_square * (two_thirds * x_curr + one_third * x_barb_start),
+                    origin[1] + to_unit_square * (two_thirds * y_curr + one_third * y_barb_start), 0.0)
 
                 barb1_knot = bz_pts[(i4 + 1) % total_knot_count]
                 barb1_knot.handle_left_type = "FREE" # "VECTOR"
                 barb1_knot.handle_right_type = "FREE"
-                barb1_knot.co = (x_barb_start, y_barb_start, 0.0)
+                barb1_knot.co = (
+                    origin[0] + to_unit_square * x_barb_start,
+                    origin[1] + to_unit_square * y_barb_start, 0.0)
                 barb1_knot.handle_left = (
-                    two_thirds * x_barb_start + one_third * x_curr,
-                    two_thirds * y_barb_start + one_third * y_curr, 0.0)
+                    origin[0] + to_unit_square * (two_thirds * x_barb_start + one_third * x_curr),
+                    origin[1] + to_unit_square * (two_thirds * y_barb_start + one_third * y_curr), 0.0)
                 barb1_knot.handle_right = (
-                    x_barb_start + x_perp_cw * kr_scaled,
-                    y_barb_start + y_perp_cw * kr_scaled, 0.0)
+                    origin[0] + to_unit_square * (x_barb_start + x_perp_cw * kappa_radius),
+                    origin[1] + to_unit_square * (y_barb_start + y_perp_cw * kappa_radius), 0.0)
 
                 apex_knot = bz_pts[(i4 + 2) % total_knot_count]
                 apex_knot.handle_left_type = "FREE"
                 apex_knot.handle_right_type = "FREE"
-                apex_knot.co = (x_foliate_apex, y_foliate_apex, 0.0)
+                apex_knot.co = (
+                    origin[0] + to_unit_square * x_foliate_apex,
+                    origin[1] + to_unit_square * y_foliate_apex, 0.0)
                 apex_knot.handle_left = (
-                    x_foliate_apex - x_vec * kr_scaled,
-                    y_foliate_apex - y_vec * kr_scaled, 0.0)
+                    origin[0] + to_unit_square * (x_foliate_apex - x_vec * kappa_radius),
+                    origin[1] + to_unit_square * (y_foliate_apex - y_vec * kappa_radius), 0.0)
                 apex_knot.handle_right = (
-                    x_foliate_apex + x_vec * kr_scaled,
-                    y_foliate_apex + y_vec * kr_scaled, 0.0)
+                    origin[0] + to_unit_square * (x_foliate_apex + x_vec * kappa_radius),
+                    origin[1] + to_unit_square * (y_foliate_apex + y_vec * kappa_radius), 0.0)
 
                 barb2_knot = bz_pts[(i4 + 3) % total_knot_count]
                 barb2_knot.handle_left_type = "FREE"
                 barb2_knot.handle_right_type = "FREE" # VECTOR
-                barb2_knot.co = (x_barb_end, y_barb_end, 0.0)
+                barb2_knot.co = (
+                    origin[0] + to_unit_square * x_barb_end,
+                    origin[1] + to_unit_square * y_barb_end, 0.0)
                 barb2_knot.handle_left = (
-                    x_barb_end + x_perp_cw * kr_scaled,
-                    y_barb_end + y_perp_cw * kr_scaled, 0.0)
+                    origin[0] + to_unit_square * (x_barb_end + x_perp_cw * kappa_radius),
+                    origin[1] + to_unit_square * (y_barb_end + y_perp_cw * kappa_radius), 0.0)
                 barb2_knot.handle_right = (
-                    two_thirds * x_barb_end + one_third * x_next,
-                    two_thirds * y_barb_end + one_third * y_next, 0.0)
+                    origin[0] + to_unit_square * (two_thirds * x_barb_end + one_third * x_next),
+                    origin[1] + to_unit_square * (two_thirds * y_barb_end + one_third * y_next), 0.0)
 
                 next_corner_knot = bz_pts[(i4 + 4) % total_knot_count]
                 next_corner_knot.handle_left_type = "FREE" # "VECTOR"
                 next_corner_knot.handle_left = (
-                    two_thirds * x_next + one_third * x_barb_end,
-                    two_thirds * y_next + one_third * y_barb_end, 0.0)
+                    origin[0] + to_unit_square * (two_thirds * x_next + one_third * x_barb_end),
+                    origin[1] + to_unit_square * (two_thirds * y_next + one_third * y_barb_end), 0.0)
 
                 i = i + 1
         elif foil_type == "OVERLAP":
