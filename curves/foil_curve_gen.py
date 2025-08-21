@@ -147,7 +147,7 @@ class FoilCurveMaker(bpy.types.Operator):
             to_unit_square = radius / (in_radius + side_len * foliate_to_side_len)
 
             # In barbed foil, the polygon is upside down
-            off_angle_p_pi = offset_angle + math.pi
+            off_angle_p_pi = offset_angle + foliate_pi_ratio
 
             bz_pts.add(total_knot_count - 1)
 
