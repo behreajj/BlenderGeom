@@ -77,7 +77,7 @@ class TudorArchMeshMaker(bpy.types.Operator):
             ("QUADS", "Quads", "Fill with quads", 2)],
         name="Face Type",
         default="QUADS",
-        description="How to fill the triangle") # type: ignore
+        description="How to fill the mesh") # type: ignore
 
     @staticmethod
     def mesh_data_to_bmesh(
