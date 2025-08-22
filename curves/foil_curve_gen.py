@@ -1,22 +1,15 @@
 # General: https://en.wikipedia.org/wiki/Foil_(architecture)
-# Multifoil arches: https://en.wikipedia.org/wiki/Multifoil_arch
 #
 # Trefoil: https://en.wikipedia.org/wiki/Trefoil
-# Barbed version is an overlapping triangle representing holy ghost
 # https://www.youtube.com/watch?v=PtSy-ZQ14ao
 # https://www.youtube.com/watch?v=AHLU_hGGQpc
 # Convex trefoil:
 # https://www.youtube.com/watch?v=WrUcR0PTaXk
 #
 # Quatrefoil: https://en.wikipedia.org/wiki/Quatrefoil
-# Also has barbed version
 # https://www.youtube.com/watch?v=0PIN54ZB7iY
 # https://www.youtube.com/watch?v=LYvKA-LmrJ4
 # https://www.youtube.com/watch?v=HHLYjI1O3zE
-#
-# Cinquefoil
-# https://www.youtube.com/watch?v=-4gfkwa-zE8
-# https://www.youtube.com/watch?v=zxw2AxeTbn0
 
 import bpy # type: ignore
 import math
