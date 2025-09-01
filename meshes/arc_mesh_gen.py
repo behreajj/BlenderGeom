@@ -306,6 +306,10 @@ class ArcMeshMaker(bpy.types.Operator):
                 math.degrees(stop_angle) % 360,
                 radius),
         )
+        mesh_data['start_angle'] = start_angle % math.tau
+        mesh_data['stop_angle'] = stop_angle % math.tau
+        mesh_data['radius'] = radius
+
         bm.to_mesh(mesh_data)
         bm.free()
 
