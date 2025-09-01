@@ -165,7 +165,7 @@ class ArcMeshMaker(bpy.types.Operator):
                 segments = sectors_per_circle,
                 calc_uvs = True)
 
-            mesh_data = bpy.data.meshes.new("Arc")
+            mesh_data = bpy.data.meshes.new("Circle")
             bm.to_mesh(mesh_data)
             bm.free()
 
@@ -300,7 +300,12 @@ class ArcMeshMaker(bpy.types.Operator):
             vs, vts, vns,
             fs, fs, fs)
 
-        mesh_data = bpy.data.meshes.new("Arc")
+        mesh_data = bpy.data.meshes.new(
+            "Arc From {:.0f} To {:.0f} R {:.3f}".format(
+                math.degrees(start_angle),
+                math.degrees(stop_angle),
+                radius),
+        )
         bm.to_mesh(mesh_data)
         bm.free()
 
