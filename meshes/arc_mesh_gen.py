@@ -302,8 +302,8 @@ class ArcMeshMaker(bpy.types.Operator):
 
         mesh_data = bpy.data.meshes.new(
             "Arc From {:.0f} To {:.0f} R {:.3f}".format(
-                math.degrees(start_angle),
-                math.degrees(stop_angle),
+                math.degrees(start_angle) % 360,
+                math.degrees(stop_angle) % 360,
                 radius),
         )
         bm.to_mesh(mesh_data)

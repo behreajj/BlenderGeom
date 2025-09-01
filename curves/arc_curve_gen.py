@@ -99,8 +99,8 @@ class ArcCurveMaker(bpy.types.Operator):
         # TODO: Add angle start, stop and radius to custom  properties?
         crv_data = bpy.data.curves.new(
             "Arc From {:.0f} To {:.0f} R {:.3f}".format(
-                math.degrees(start_angle),
-                math.degrees(stop_angle),
+                math.degrees(start_angle) % 360,
+                math.degrees(stop_angle) % 360,
                 radius),
             "CURVE")
         # If a curve is 2D, then transforms cannot be applied.
