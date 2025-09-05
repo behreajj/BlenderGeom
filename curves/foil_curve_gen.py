@@ -36,6 +36,7 @@ class FoilCurveMaker(bpy.types.Operator):
     bl_label = "Foil"
     bl_options = {"REGISTER", "UNDO"}
 
+    # TODO: Option to invert arcs so they become spikey?
     foil_type: EnumProperty(
         items=[
             ("BARBED", "Barbed", "Barbed", 1),
