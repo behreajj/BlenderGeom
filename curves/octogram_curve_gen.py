@@ -2,6 +2,7 @@
 #
 # For compound octogram:
 # 0.29289321881345237
+# 0.5 * (2 - sqrt(2)) = 0.2928932188134524
 # Rotated 45 deg:
 # 0.4142135623730949
 #
@@ -37,10 +38,12 @@ class OctogramCurveMaker(bpy.types.Operator):
 
     sub_type: EnumProperty(
         items=[
-            ("COMPLEMENT", "Complement", "Complement", 1),
-            ("REGULAR", "Regular", "Regular", 2)],
+            ("COMPOUND", "Compound", "Compound", 1),
+            ("INVERSE", "Inverse", "Inverse", 2),
+            ("ISOGONAL", "Isogonal", "Isogonal", 3),
+            ("ISOTOXAL", "Isotoxal", "Isotoxal", 4)],
         name="Type",
-        default="REGULAR",
+        default="COMPOUND",
         description="Type of octogram") # type: ignore
 
     radius: FloatProperty(
@@ -122,9 +125,10 @@ class OctogramCurveMaker(bpy.types.Operator):
         bz_pts = spline.bezier_points
         bz_pts.add(15)
 
+        # TODO: Would it be more efficient to list only the coordinate
+        # points and linear interpolate the rest?
         points = []
-
-        if sub_type == "COMPLEMENT":
+        if sub_type == "INVERSE":
             points = [
                 # 0 Center right knot
                 (0.9023689270621824, -0.09763107293781745, 0.0), # Rear handle
@@ -204,7 +208,76 @@ class OctogramCurveMaker(bpy.types.Operator):
                 # 15
                 (0.5690355937288492, -0.29289321881345237, 0.0),
                 (0.7071067811865476, -0.29289321881345237, 0.0),
-                (0.804737854124365, -0.1952621458756349, 0.0),
+                (0.804737854124365, -0.1952621458756349, 0.0)
+            ]
+        elif sub_type == "ISOGONAL":
+            # TODO: Implement.
+            points = []
+        elif sub_type == "ISOTOXAL":
+            points = [
+                (0.8666666666666667, -0.06666666666666667, 0.0), # Rear handle
+                (1.0, 0.0, 0.0), # Coord
+                (0.8666666666666667, 0.06666666666666667, 0.0), # Fore handle
+
+                (0.7333333333333333, 0.13333333333333333, 0.0), # Rear handle
+                (0.6, 0.2, 0.0), # Coord
+                (0.7333333333333333, 0.4666666666666667, 0.0), # Fore handle
+
+                (0.8666666666666667, 0.7333333333333333, 0.0), # Rear handle
+                (1.0, 1.0, 0.0), # Coord
+                (0.7333333333333333, 0.8666666666666667, 0.0), # Fore handle
+
+                (0.4666666666666667, 0.7333333333333333, 0.0), # Rear handle
+                (0.2, 0.6, 0.0), # Coord
+                (0.13333333333333333, 0.7333333333333333, 0.0), # Fore handle
+
+                (0.06666666666666667, 0.8666666666666667, 0.0), # Rear handle
+                (0.0, 1.0, 0.0), # Coord
+                (-0.06666666666666667, 0.8666666666666667, 0.0), # Fore handle
+
+                (-0.13333333333333333, 0.7333333333333333, 0.0), # Rear handle
+                (-0.2, 0.6, 0.0), # Coord
+                (-0.4666666666666667, 0.7333333333333333, 0.0), # Fore handle
+
+                (-0.7333333333333333, 0.8666666666666667, 0.0), # Rear handle
+                (-1.0, 1.0, 0.0), # Coord
+                (-0.8666666666666667, 0.7333333333333333, 0.0), # Fore handle
+
+                (-0.7333333333333333, 0.4666666666666667, 0.0), # Rear handle
+                (-0.6, 0.2, 0.0), # Coord
+                (-0.7333333333333333, 0.13333333333333333, 0.0), # Fore handle
+
+                (-0.8666666666666667, 0.06666666666666667, 0.0), # Rear handle
+                (-1.0, 0.0, 0.0), # Coord
+                (-0.8666666666666667, -0.06666666666666667, 0.0), # Fore handle
+
+                (-0.7333333333333333, -0.13333333333333333, 0.0), # Rear handle
+                (-0.6, -0.2, 0.0), # Coord
+                (-0.7333333333333333, -0.4666666666666667, 0.0), # Fore handle
+
+                (-0.8666666666666667, -0.7333333333333333, 0.0), # Rear handle
+                (-1.0, -1.0, 0.0), # Coord
+                (-0.7333333333333333, -0.8666666666666667, 0.0), # Fore handle
+
+                (-0.4666666666666667, -0.7333333333333333, 0.0), # Rear handle
+                (-0.2, -0.6, 0.0), # Coord
+                (-0.13333333333333333, -0.7333333333333333, 0.0), # Fore handle
+
+                (-0.06666666666666667, -0.8666666666666667, 0.0), # Rear handle
+                (0.0, -1.0, 0.0), # Coord
+                (0.06666666666666667, -0.8666666666666667, 0.0), # Fore handle
+
+                (0.13333333333333333, -0.7333333333333333, 0.0), # Rear handle
+                (0.2, -0.6, 0.0), # Coord
+                (0.4666666666666667, -0.7333333333333333, 0.0), # Fore handle
+
+                (0.7333333333333333, -0.8666666666666667, 0.0), # Rear handle
+                (1.0, -1.0, 0.0), # Coord
+                (0.8666666666666667, -0.7333333333333333, 0.0), # Fore handle
+
+                (0.7333333333333333, -0.4666666666666667, 0.0), # Rear handle
+                (0.6, -0.2, 0.0), # Coord
+                (0.7333333333333333, -0.13333333333333333, 0.0), # Fore handle
             ]
         else:
             points = [
