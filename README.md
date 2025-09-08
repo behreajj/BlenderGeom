@@ -4,7 +4,7 @@ This repository houses Python scripts to create basic 2D geometry in [Blender](h
 
 To install, go to Edit > Preferences. Click on Add-ons in the lefthand column. Click on the arrow in the top-right corner. Select Install from Disk in the drop down menu.
 
-These scripts were tested with Blender version 4.4.3.
+These scripts were tested with Blender version 4.5.2.
 
 ### Bezier Curves:
 
@@ -39,6 +39,10 @@ A [lancet arch](https://en.wikipedia.org/wiki/Lancet_window).
 ![Line](screenCaps/curves/curveLine.png)
 
 A segmented line.
+
+![Octogram](screenCaps/curves/octogramCurve.png)
+
+An [octogram](https://en.wikipedia.org/wiki/Octagram), or [Rub el Hizb](https://en.wikipedia.org/wiki/Rub_el_Hizb), with isogonal and isotoxal sub variants.
 
 ![Polar Grid](screenCaps/curves/polarGrid.png)
 
