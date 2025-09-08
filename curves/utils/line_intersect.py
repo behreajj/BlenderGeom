@@ -1,8 +1,6 @@
 import bpy # type: ignore
-import math
 from bpy.props import ( # type: ignore
     EnumProperty,
-    FloatProperty,
     FloatVectorProperty,
     IntProperty)
 

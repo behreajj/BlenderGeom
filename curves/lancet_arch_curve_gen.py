@@ -1,10 +1,3 @@
-# Circle circle intersection
-# to figure out peak with double precision:
-# https://gist.github.com/jupdike/bfe5eb23d1c395d8a0a1a4ddd94882ac
-# Maybe make a script entirely dedicated to this?
-# This is how messages are reported to info:
-# self.report({"INFO"}, "Foobar")
-
 import bpy # type: ignore
 import math
 from bpy.props import ( # type: ignore
