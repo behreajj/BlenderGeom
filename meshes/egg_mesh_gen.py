@@ -22,8 +22,6 @@ bl_info = {
 class EggMeshMaker(bpy.types.Operator):
     """Creates a mesh egg"""
 
-    # TODO: Make a 3D version!
-
     bl_idname = "mesh.primitive_egg_add"
     bl_label = "Egg"
     bl_options = {"REGISTER", "UNDO"}
