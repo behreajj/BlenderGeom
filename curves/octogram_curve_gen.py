@@ -1,14 +1,3 @@
-# https://en.wikipedia.org/wiki/Octagram#Other_presentations_of_an_octagonal_star
-#
-# For compound octogram:
-# 0.5 * (2 - sqrt(2)) = 0.2928932188134524
-# Rotated 45 deg:
-# 0.4142135623730949
-#
-# For isogonal octogram:
-# sqrt(2)/4 = 0.3535533905932738
-# 1 - sqrt(2)/4 = 0.6464466094067263
-
 import bpy # type: ignore
 import math
 from bpy.props import ( # type: ignore
@@ -21,7 +10,7 @@ bl_info = {
     "name": "Create Octogram Curve",
     "author": "Jeremy Behreandt",
     "version": (0, 1),
-    "blender": (4, 4, 3),
+    "blender": (4, 5, 2),
     "category": "Add Curve",
     "description": "Creates a Bezier curve octogram, or Rub el Hizb.",
     "tracker_url": "https://github.com/behreajj/blendergeom"
@@ -145,6 +134,9 @@ class OctogramCurveMaker(bpy.types.Operator):
                 (0.7071067811865476, -0.2928932188134524, 0.0),
             ]
         elif sub_type == "ISOGONAL":
+            # sqrt(2) / 4 = 0.3535533905932738
+            # 1 - sqrt(2) / 4 = 0.6464466094067263
+
             points = [
                 (0.6464466094067263, 0.0, 0.0), # 0 Center right
                 (1.0, 0.3535533905932738, 0.0),
@@ -183,6 +175,9 @@ class OctogramCurveMaker(bpy.types.Operator):
                 (0.6, -0.2, 0.0),
             ]
         else:
+            # 0.5 * (2 - sqrt(2)) = 0.2928932188134524
+            # Rotated 45 deg: 0.4142135623730949
+
             points = [
                 (1.0, 0.0, 0.0), # 0 Center right
                 (0.7071067811865476, 0.2928932188134524, 0.0),
