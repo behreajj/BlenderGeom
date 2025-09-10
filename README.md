@@ -28,10 +28,6 @@ A [foil](https://en.wikipedia.org/wiki/Foil_(architecture)), including [trefoil]
 
 An infinity loop, or [lemniscate of Bernoulli](https://en.wikipedia.org/wiki/Lemniscate_of_Bernoulli).
 
-![Reuleaux](screenCaps/curves/curveReuleaux.png)
-
-A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
-
 ![Lancet Arch](screenCaps/curves/curveLancetArch.png)
 
 A [lancet arch](https://en.wikipedia.org/wiki/Lancet_window).
@@ -47,6 +43,10 @@ An [octogram](https://en.wikipedia.org/wiki/Octagram), or [Rub el Hizb](https://
 ![Polar Grid](screenCaps/curves/polarGrid.png)
 
 A [polar grid](https://en.wikipedia.org/wiki/Polar_coordinate_system).
+
+![Reuleaux](screenCaps/curves/curveReuleaux.png)
+
+A [Reuleaux triangle](https://en.wikipedia.org/wiki/Reuleaux_triangle).
 
 ![Star](screenCaps/curves/curveStar.png)
 
@@ -89,6 +89,10 @@ A Reuleaux triangle.
 ![Line](screenCaps/meshes/meshLine.png)
 
 A segmented line.
+
+![Octogram](screenCaps/meshes/meshOctogram.png)
+
+An octogram.
 
 ![Star](screenCaps/meshes/meshStar.png)
 

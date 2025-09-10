@@ -261,7 +261,6 @@ class EggMeshMaker(bpy.types.Operator):
                     g % (len_vs - 1),
                     (g + 1) % (len_vs - 1))
                 g = g + 1
-            g = 0
 
         bm = EggMeshMaker.mesh_data_to_bmesh(
             vs, vts, vns,
