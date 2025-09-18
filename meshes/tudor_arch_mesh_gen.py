@@ -146,6 +146,8 @@ class TudorArchMeshMaker(bpy.types.Operator):
         # TODO: Double check that arch offset is consistent between
         # curve and mesh version.
 
+        # TODO: Make default uvs consistent with lancet arch?
+
         sectors_minor = max(3, self.sectors[0])
         sectors_major = max(3, self.sectors[1])
 
