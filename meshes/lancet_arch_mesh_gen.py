@@ -182,6 +182,9 @@ class LancetArchMeshMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], v[2] + t[2])
 
     def execute(self, context):
+        # TODO: Double check that arch offset is consistent between
+        # curve and mesh version.
+
         sectors = max(3, self.sectors)
         sharpness = min(max(self.sharpness, 0.0), 1.0)
         arch_weight = min(max(self.arch_weight, 0.0), 1.0)
@@ -229,8 +232,25 @@ class LancetArchMeshMaker(bpy.types.Operator):
             radius_outer = (1.0 - arch_offset_01) * radius_center \
                 + arch_offset_01 * radius_outer_limit
 
-        vt_vert_offset = 0.0
-        vt_scalar = radius_inner / radius_outer
+        equilateral_aspect_inner = 2.0 / 1.7320508075688772
+        lancet_aspect_inner = 2.6457513110645903 / 2.0
+        y_trg_inner = (1.0 - sharpness) * equilateral_aspect_inner \
+            + sharpness * lancet_aspect_inner
+        y_aspect_fix_inner = (1.0 - arch_weight) * 1.0 \
+            + arch_weight * y_trg_inner
+
+        equilateral_aspect_outer = 1.7320508075688772 / 2.0
+        lancet_aspect_outer = 2.0 / 2.6457513110645903
+        y_trg_outer = (1.0 - sharpness) * equilateral_aspect_outer \
+            + sharpness * lancet_aspect_outer
+        y_aspect_fix_outer = (1.0 - arch_weight) * 1.0 \
+            + arch_weight * y_trg_outer
+
+        arch_offset_01 = arch_offset * 0.5 + 0.5
+        y_aspect_fix_inner = (1.0 - arch_offset_01) * y_aspect_fix_inner \
+            + arch_offset_01 * 1.0
+        y_aspect_fix_outer = (1.0 - arch_offset_01) * 1.0 \
+            + arch_offset_01 * y_aspect_fix_outer
 
         create_faces = arch_weight_gt_zero \
             and radius_inner_gt_zero
@@ -248,19 +268,16 @@ class LancetArchMeshMaker(bpy.types.Operator):
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
         if create_faces:
+            # TODO: Calculate UVs!
+
             vs[sectors] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    (0.0, y_coord[1], 0.0), radius_outer),
+                    (0.0, y_coord[1] * y_aspect_fix_outer, 0.0), radius_outer),
                     origin3)
-
-            # vs[sectors * 3] = LancetArchMeshMaker.translate3(
-            #     LancetArchMeshMaker.scale3(
-            #         (0.0, y_coord[1], 0.0), radius_inner),
-            #         origin3)
 
             vs[sectors * 3 + 1] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    (0.0, y_coord[1], 0.0), radius_inner),
+                    (0.0, y_coord[1] * y_aspect_fix_inner, 0.0), radius_inner),
                     origin3)
 
             i = 0
@@ -280,22 +297,42 @@ class LancetArchMeshMaker(bpy.types.Operator):
                     v_right_local[1],
                     v_right_local[2])
 
+                v_right_outer = (
+                    v_right_local[0],
+                    v_right_local[1] * y_aspect_fix_outer,
+                    v_right_local[2])
+
+                v_left_outer = (
+                    v_left_local[0],
+                    v_left_local[1] * y_aspect_fix_outer,
+                    v_left_local[2])
+
                 vs[i] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    v_right_local, radius_outer),
+                    v_right_outer, radius_outer),
                     origin3)
                 vs[sectors * 2 - i] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    v_left_local, radius_outer),
+                    v_left_outer, radius_outer),
                     origin3)
+
+                v_right_inner = (
+                    v_right_local[0],
+                    v_right_local[1] * y_aspect_fix_inner,
+                    v_right_local[2])
+
+                v_left_inner = (
+                    v_left_local[0],
+                    v_left_local[1] * y_aspect_fix_inner,
+                    v_left_local[2])
 
                 vs[sectors * 2 + 1 + i] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    v_left_local, radius_inner),
+                    v_left_inner, radius_inner),
                     origin3)
                 vs[len_vs - 1 - i] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    v_right_local, radius_inner),
+                    v_right_inner, radius_inner),
                     origin3)
 
                 i = i + 1

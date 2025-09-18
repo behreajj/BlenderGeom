@@ -143,6 +143,9 @@ class TudorArchMeshMaker(bpy.types.Operator):
         return (v[0] + t[0], v[1] + t[1], v[2] + t[2])
 
     def execute(self, context):
+        # TODO: Double check that arch offset is consistent between
+        # curve and mesh version.
+
         sectors_minor = max(3, self.sectors[0])
         sectors_major = max(3, self.sectors[1])
 
