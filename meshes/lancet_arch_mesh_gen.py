@@ -268,17 +268,21 @@ class LancetArchMeshMaker(bpy.types.Operator):
         vns = [(0.0, 0.0, 1.0)] * len_vs
 
         if create_faces:
-            # TODO: Calculate UVs!
+            keystone_outer = (0.0, y_coord[1] * y_aspect_fix_outer, 0.0)
+            keystone_inner = (0.0, y_coord[1] * y_aspect_fix_inner, 0.0)
 
             vs[sectors] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    (0.0, y_coord[1] * y_aspect_fix_outer, 0.0), radius_outer),
+                    keystone_outer, radius_outer),
                     origin3)
 
             vs[sectors * 3 + 1] = LancetArchMeshMaker.translate3(
                 LancetArchMeshMaker.scale3(
-                    (0.0, y_coord[1] * y_aspect_fix_inner, 0.0), radius_inner),
+                    keystone_inner, radius_inner),
                     origin3)
+
+            vts[sectors] = (0.5, 1.0)
+            vts[sectors * 3 + 1] = (0.5, 0.0)
 
             i = 0
             while i < sectors:
@@ -316,6 +320,9 @@ class LancetArchMeshMaker(bpy.types.Operator):
                     v_left_outer, radius_outer),
                     origin3)
 
+                vts[i] = (0.5 * i / sectors, 1.0)
+                vts[sectors * 2 - i] = (1.0 - 0.5 * i / sectors, 1.0)
+
                 v_right_inner = (
                     v_right_local[0],
                     v_right_local[1] * y_aspect_fix_inner,
@@ -334,6 +341,9 @@ class LancetArchMeshMaker(bpy.types.Operator):
                 LancetArchMeshMaker.scale3(
                     v_right_inner, radius_inner),
                     origin3)
+
+                vts[sectors * 2 + 1 + i] = (1.0 - 0.5 * i / sectors, 0.0)
+                vts[len_vs - 1 - i] = (0.5 * i / sectors, 0.0)
 
                 i = i + 1
         else:
