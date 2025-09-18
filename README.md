@@ -78,6 +78,10 @@ An egg (2D).
 
 An infinity loop.
 
+![Lancet arch](screenCaps/meshes/meshLancetArch.png)
+
+A lancet arch.
+
 ![Polar Grid](screenCaps/meshes/meshPolarGrid.png)
 
 A polar grid.
