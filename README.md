@@ -40,6 +40,10 @@ A segmented line.
 
 An [octogram](https://en.wikipedia.org/wiki/Octagram), or [Rub el Hizb](https://en.wikipedia.org/wiki/Rub_el_Hizb), with isogonal and isotoxal sub variants.
 
+![Ogee](screenCaps/curves/curveOgee.png)
+
+An [ogee](https://en.wikipedia.org/wiki/Ogee).
+
 ![Polar Grid](screenCaps/curves/polarGrid.png)
 
 A [polar grid](https://en.wikipedia.org/wiki/Polar_coordinate_system).
