@@ -116,7 +116,7 @@ class LineIntersectCurveMaker(bpy.types.Operator):
             x_is = LineIntersectCurveMaker.determinant(d, xdiff) / div
             y_is = LineIntersectCurveMaker.determinant(d, ydiff) / div
 
-            self.report({"INFO"}, f"({x_is},{y_is})")
+            self.report({"INFO"}, f"({x_is}, {y_is})")
 
             a_bz_pts.add(2)
             b_bz_pts.add(2)

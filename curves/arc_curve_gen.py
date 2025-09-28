@@ -258,6 +258,10 @@ class ArcCurveMaker(bpy.types.Operator):
             knot.handle_left = (co_x + hm_sina, co_y - hm_cosa, 0.0)
             knot.handle_right = (co_x - hm_sina, co_y + hm_cosa, 0.0)
 
+            # self.report({"INFO"}, f"({co_x}, {co_y})")
+            # self.report({"INFO"}, f"({co_x + hm_sina}, {co_y - hm_cosa})")
+            # self.report({"INFO"}, f"({co_x - hm_sina}, {co_y + hm_cosa})")
+
             i = i + 1
 
         if arc_type == "PIE":
