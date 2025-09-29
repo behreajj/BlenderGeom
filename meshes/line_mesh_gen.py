@@ -9,7 +9,7 @@ bl_info = {
     "author": "Jeremy Behreandt",
     "version": (0, 1),
     "blender": (4, 4, 3),
-    "category": "Add Curve",
+    "category": "Add Mesh",
     "description": "Creates a segmented line mesh.",
     "tracker_url": "https://github.com/behreajj/blendergeom"
 }
