@@ -106,6 +106,7 @@ class ArcCurveMaker(bpy.types.Operator):
         crv_data['start_angle'] = start_angle % math.tau
         crv_data['stop_angle'] = stop_angle % math.tau
         crv_data['radius'] = radius
+        crv_data['origin'] = origin
 
         # If a curve is 2D, then transforms cannot be applied.
         crv_data.dimensions = "3D"
