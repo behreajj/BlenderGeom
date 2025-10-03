@@ -155,19 +155,71 @@ class ArcMeshMaker(bpy.types.Operator):
 
         if arc_len < 0.00139 \
             or abs(math.tau - (stop_angle - start_angle)) < 0.00139:
-            bm = bmesh.new()
-            bmesh.ops.create_circle(
-                bm,
-                cap_ends = True,
-                cap_tris = True,
-                matrix = Matrix.Rotation(start_angle, 4, 'Z'),
-                radius = radius,
-                segments = sectors_per_circle,
-                calc_uvs = True)
-
             mesh_data = bpy.data.meshes.new("Circle")
-            bm.to_mesh(mesh_data)
-            bm.free()
+
+            if arc_type == "SECTOR" \
+                and r_inner > 0.00001:
+                len_vs = sectors_per_circle * 2
+                len_fs = sectors_per_circle
+
+                vs = [(0.0, 0.0, 0.0)] * len_vs
+                vts = [(0.5, 0.5)] * len_vs
+                vns = [(0.0, 0.0, 1.0)] * len_vs
+                fs = [(0, 0, 0, 0)] * len_fs
+
+                j_to_theta = math.tau / sectors_per_circle
+                j = 0
+                while j < sectors_per_circle:
+                        theta = start_angle + j * j_to_theta
+                        cos_theta = math.cos(theta)
+                        sin_theta = math.sin(theta)
+
+                        vs[j] = (x_orig + radius * cos_theta,
+                            y_orig + radius * sin_theta, 0.0)
+                        vts[j] = (0.5 * cos_theta + 0.5,
+                          0.5 * sin_theta + 0.5)
+
+                        j = j + 1
+
+                        vs[len_vs - j] = (x_orig + r_inner * cos_theta,
+                          y_orig + r_inner * sin_theta, 0.0)
+                        vts[len_vs - j] = (0.5 * r_scalar * cos_theta + 0.5,
+                           0.5 * r_scalar * sin_theta + 0.5)
+
+                k = 0
+                while k < len_fs:
+                    fs[k] = (
+                        k % sectors_per_circle,
+                        (k + 1) % sectors_per_circle,
+                        sectors_per_circle + (-k - 2) % sectors_per_circle,
+                        sectors_per_circle + (-k - 1) % sectors_per_circle)
+                    k = k + 1
+
+                bm = ArcMeshMaker.mesh_data_to_bmesh(
+                    vs, vts, vns,
+                    fs, fs, fs)
+
+                mesh_data = bpy.data.meshes.new(
+                    "Circle R {:.3f}".format(radius))
+
+                bm.to_mesh(mesh_data)
+                bm.free()
+            else:
+                bm = bmesh.new()
+                bmesh.ops.create_circle(
+                    bm,
+                    # TODO: Set these appropriately per stroke type?
+                    cap_ends = True,
+                    cap_tris = True,
+                    matrix = Matrix.Rotation(start_angle, 4, 'Z'),
+                    radius = radius,
+                    segments = sectors_per_circle,
+                    calc_uvs = True)
+                bm.to_mesh(mesh_data)
+                bm.free()
+
+            mesh_data['radius'] = radius
+            mesh_data['origin'] = origin
 
             mesh_obj = bpy.data.objects.new(mesh_data.name, mesh_data)
             mesh_obj.location = context.scene.cursor.location
@@ -277,13 +329,14 @@ class ArcMeshMaker(bpy.types.Operator):
                            0.5 * r_scalar * point[1] + 0.5)
 
             # Construct quads.
+            sec_arc_2 = sectors_per_arc * 2
             k = 0
             while k < len_fs:
                 fs[k] = ( # type: ignore
                     k,
                     k + 1,
-                    sectors_per_arc * 2 - k - 2,
-                    sectors_per_arc * 2 - k - 1)
+                    sec_arc_2 - k - 2,
+                    sec_arc_2 - k - 1)
                 k = k + 1
 
         else:
@@ -304,11 +357,12 @@ class ArcMeshMaker(bpy.types.Operator):
             "Arc From {:.0f} To {:.0f} R {:.3f}".format(
                 math.degrees(start_angle) % 360,
                 math.degrees(stop_angle) % 360,
-                radius),
-        )
+                radius))
+
         mesh_data['start_angle'] = start_angle % math.tau
         mesh_data['stop_angle'] = stop_angle % math.tau
         mesh_data['radius'] = radius
+        mesh_data['origin'] = origin
 
         bm.to_mesh(mesh_data)
         bm.free()
